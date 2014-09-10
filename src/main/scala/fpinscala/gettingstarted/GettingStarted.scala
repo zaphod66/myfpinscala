@@ -23,9 +23,9 @@ object PolymorphicFuctions {
 
   // Exercise 5: Implement `uncurry`
   def uncurry[A,B,C](f: A => B => C): (A, B) => C =
-    ???
+    (a,b) => f(a)(b)
 
   // Exercise 6: Implement `compose`
   def compose[A,B,C](f: B => C, g: A => B): A => C =
-    ???
+    a => f(g(a))
 }
