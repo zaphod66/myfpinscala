@@ -20,4 +20,5 @@ object ListWS {
   initTR(ex2)                                     //> res5: fpinscala.datastructures.List[String] = Cons(a,Cons(b,Nil))
   drop(ex6, 4)                                    //> res6: fpinscala.datastructures.List[Int] = Cons(5,Cons(6,Cons(7,Nil)))
   dropWhile(ex6, (x: Int) => x < 5)               //> res7: fpinscala.datastructures.List[Int] = Cons(5,Cons(6,Cons(7,Nil)))
+  dropWhileC(ex6)(x => x < 5)                     //> res8: fpinscala.datastructures.List[Int] = Cons(5,Cons(6,Cons(7,Nil)))
 }

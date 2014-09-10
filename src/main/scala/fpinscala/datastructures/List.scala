@@ -53,6 +53,11 @@ object List {
     case _  => l
   }
   
+  def dropWhileC[A](l: List[A])(f: A => Boolean): List[A] = l match {
+    case Cons(h,t) if (f(h)) => dropWhileC(t)(f)
+    case _ => l
+  }
+  
   def append[A](a1: List[A], a2: List[A]): List[A] = a1 match {
     case Nil       => a2
     case Cons(h,t) => Cons(h, append(t,a2))
@@ -77,4 +82,22 @@ object List {
     }
     go(l)
   }
+  
+  ///////////////
+  
+  def foldRight[A,B](l: List[A], b: B)(f: (A,B) => B): B = {
+    l match {
+      case Nil       => b
+      case Cons(h,t) => f(h, foldRight(t,b)(f))
+    }
+  }
+  
+  def sum2(xs: List[Int]) = foldRight(xs, 0)(_ + _)
+  def prod2(xs: List[Double]) = foldRight(xs, 1.0)(_ * _)
+
+  // exercise 3.7
+  // nope
+  
+  // exercise 3.8
+  
 }
