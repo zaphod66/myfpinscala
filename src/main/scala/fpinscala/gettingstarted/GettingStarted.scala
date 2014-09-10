@@ -1,6 +1,6 @@
 package fpinscala.gettingstarted
 
-object PolymorphicFuctions {
+object PolymorphicFunctions {
   
   // Exercise 2: Implement a polymorphic function to check whether an `Array[A]` is sorted
   def isSorted[A](as: Array[A], gt: (A,A) => Boolean): Boolean = {
@@ -13,6 +13,19 @@ object PolymorphicFuctions {
     else go(1, as(0))
   }
 
+  def isSorted2[A](as: Array[A], gt: (A,A) => Boolean): Boolean = {
+    def go(i: Int): Boolean = {
+      if (i == as.length) true
+      else if (gt(as(i), as(i - 1))) go(i + 1)
+      else false
+    }
+    
+    if (as.length == 0)
+      true
+    else
+      go(1)
+  }
+  
   // Exercise 3: Implement `partial1`.
   def partial1[A,B,C](a: A, f: (A,B) => C): B => C =
     b => f(a,b)
