@@ -99,5 +99,21 @@ object List {
   // nope
   
   // exercise 3.8
+  // original list
   
+  // exercise 3.9
+  def length[A](as: List[A]): Int = foldRight(as,0)((_,acc) => acc + 1)
+  
+  // exercise 3.10
+  def foldLeft[A,B](l: List[A], b: B)(f: (A,B) => B): B = {
+    @annotation.tailrec
+    def go(xs: List[A], acc: B): B = xs match {
+      case Nil       => acc
+      case Cons(h,t) => go(t, f(h, acc))
+    }
+
+    go(l, b)
+  }
+  
+  def lengthL[A](as: List[A]): Int = foldLeft(as,0)((_,acc) => acc + 1)
 }
