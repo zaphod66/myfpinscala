@@ -115,5 +115,14 @@ object List {
     go(l, b)
   }
   
+  @annotation.tailrec
+  def foldLeftSolution[A,B](l: List[A], z: B)(f: (B, A) => B): B = l match {
+    case Nil => z
+    case Cons(h,t) => foldLeftSolution(t, f(z,h))(f)
+  }
+  
+  // exercise 3.11
+  def sumL(as: List[Int]): Int = foldLeft(as,0)(_ + _)
+  def productL(as: List[Double]): Double = foldLeft(as,1.0)(_ * _)
   def lengthL[A](as: List[A]): Int = foldLeft(as,0)((_,acc) => acc + 1)
 }
