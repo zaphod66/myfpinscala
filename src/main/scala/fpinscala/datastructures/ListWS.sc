@@ -28,4 +28,5 @@ object ListWS {
   length(append(fill(1,2700),fill(2,2700)))       //> res12: Int = 5400
   lengthL(append(fill(1,2800),fill(2,2700)))      //> res13: Int = 5500
   foldLeft(ex6,0)(_ + _)                          //> res14: Int = 28
+  reverse(ex2)                                    //> res15: fpinscala.datastructures.List[String] = Cons(c,Cons(b,Cons(a,Nil)))
 }

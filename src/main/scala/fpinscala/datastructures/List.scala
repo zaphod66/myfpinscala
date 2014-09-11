@@ -116,13 +116,16 @@ object List {
   }
   
   @annotation.tailrec
-  def foldLeftSolution[A,B](l: List[A], z: B)(f: (B, A) => B): B = l match {
+  def foldLeftBook[A,B](l: List[A], z: B)(f: (B, A) => B): B = l match {
     case Nil => z
-    case Cons(h,t) => foldLeftSolution(t, f(z,h))(f)
+    case Cons(h,t) => foldLeftBook(t, f(z,h))(f)
   }
   
   // exercise 3.11
   def sumL(as: List[Int]): Int = foldLeft(as,0)(_ + _)
   def productL(as: List[Double]): Double = foldLeft(as,1.0)(_ * _)
   def lengthL[A](as: List[A]): Int = foldLeft(as,0)((_,acc) => acc + 1)
+  
+  // exercise 3.12
+  def reverse[A](l: List[A]): List[A] = foldLeft(l, Nil: List[A])((h,t) => Cons(h,t))
 }
