@@ -143,6 +143,7 @@ object List {
     
   // exercise 3.15
   def concat[A](ls: List[List[A]]): List[A] = {
+    @annotation.tailrec
     def go(l: List[List[A]], acc: List[A]): List[A] = {
       l match {
         case Nil       => acc
@@ -152,4 +153,7 @@ object List {
     
     go(reverse(ls), Nil: List[A])
   }
+  
+  def concatBook[A](l: List[List[A]]): List[A] =
+    foldRight(l, Nil:List[A])(append)
 }
