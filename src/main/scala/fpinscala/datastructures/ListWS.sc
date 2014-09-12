@@ -23,10 +23,12 @@ object ListWS {
   dropWhileC(ex6)(x => x < 5)                     //> res8: fpinscala.datastructures.List[Int] = Cons(5,Cons(6,Cons(7,Nil)))
   append(ex3,ex4)                                 //> res9: fpinscala.datastructures.List[Int] = Cons(1,Cons(2,Cons(2,Cons(2,Cons(
                                                   //| 2,Nil)))))
-  foldRight(ex2, Nil: List[String])(Cons(_,_))    //> res10: fpinscala.datastructures.List[String] = Cons(a,Cons(b,Cons(c,Nil)))
-  length(ex6)                                     //> res11: Int = 7
-  length(append(fill(1,2700),fill(2,2700)))       //> res12: Int = 5400
-  lengthL(append(fill(1,2800),fill(2,2700)))      //> res13: Int = 5500
-  foldLeft(ex6,0)(_ + _)                          //> res14: Int = 28
-  reverse(ex2)                                    //> res15: fpinscala.datastructures.List[String] = Cons(c,Cons(b,Cons(a,Nil)))
+  appendViaFold(ex3,ex4)                          //> res10: fpinscala.datastructures.List[Int] = Cons(1,Cons(2,Cons(2,Cons(2,Cons
+                                                  //| (2,Nil)))))
+  foldRight(ex2, Nil: List[String])(Cons(_,_))    //> res11: fpinscala.datastructures.List[String] = Cons(a,Cons(b,Cons(c,Nil)))
+  length(ex6)                                     //> res12: Int = 7
+  length(append(fill(1,2700),fill(2,2700)))       //> res13: Int = 5400
+  lengthL(append(fill(1,2800),fill(2,2700)))      //> res14: Int = 5500
+  foldLeft(ex6,0)(_ + _)                          //> res15: Int = 28
+  reverse(ex2)                                    //> res16: fpinscala.datastructures.List[String] = Cons(c,Cons(b,Cons(a,Nil)))
 }

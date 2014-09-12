@@ -100,6 +100,7 @@ object List {
   
   // exercise 3.8
   // original list
+  // foldRight(List(1,2,3), Nil:List[Int])(Cons(_,_))
   
   // exercise 3.9
   def length[A](as: List[A]): Int = foldRight(as,0)((_,acc) => acc + 1)
@@ -133,9 +134,13 @@ object List {
   def foldRightViaFoldLeft[A,B](l: List[A], b: B)(f: (A,B) => B): B =
     foldLeft(reverse(l), b)((a,b) => f(b,a))
     
-  def foldRightViaFoldLeft_1[A,B](l: List[A], z: B)(f: (A,B) => B): B =
-    foldLeft(l, (b:B) => b)((g,a) => b => g(f(a,b)))(z)
-    
   def foldRightViaFoldLeft_1Book[A,B](l: List[A], z: B)(f: (A,B) => B): B =
-    foldLeftBook(l, (b:B) => b)((g,a) => b => g(f(a,b)))(z)
+    foldLeft(l, (b:B) => b)((g,a) => b => g(f(a,b)))(z)
+
+  // exercise 3.14
+  def appendViaFold[A](l1: List[A], l2: List[A]): List[A] = 
+    foldRight(l1,l2)(Cons(_,_))
+    
+  // exercise 3.15
+  def concat[A](ls: List[List[A]]): List[A] = ???
 }
