@@ -105,11 +105,11 @@ object List {
   def length[A](as: List[A]): Int = foldRight(as,0)((_,acc) => acc + 1)
   
   // exercise 3.10
-  def foldLeft[A,B](l: List[A], b: B)(f: (A,B) => B): B = {
+  def foldLeft[A,B](l: List[A], b: B)(f: (B,A) => B): B = {
     @annotation.tailrec
     def go(xs: List[A], acc: B): B = xs match {
       case Nil       => acc
-      case Cons(h,t) => go(t, f(h, acc))
+      case Cons(h,t) => go(t, f(acc, h))
     }
 
     go(l, b)
@@ -124,8 +124,18 @@ object List {
   // exercise 3.11
   def sumL(as: List[Int]): Int = foldLeft(as,0)(_ + _)
   def productL(as: List[Double]): Double = foldLeft(as,1.0)(_ * _)
-  def lengthL[A](as: List[A]): Int = foldLeft(as,0)((_,acc) => acc + 1)
+  def lengthL[A](as: List[A]): Int = foldLeft(as,0)((acc,_) => acc + 1)
   
   // exercise 3.12
-  def reverse[A](l: List[A]): List[A] = foldLeft(l, Nil: List[A])((h,t) => Cons(h,t))
+  def reverse[A](l: List[A]): List[A] = foldLeft(l, Nil: List[A])((acc,h) => Cons(h,acc))
+  
+  // exercise 3.13
+  def foldRightViaFoldLeft[A,B](l: List[A], b: B)(f: (A,B) => B): B =
+    foldLeft(reverse(l), b)((a,b) => f(b,a))
+    
+  def foldRightViaFoldLeft_1[A,B](l: List[A], z: B)(f: (A,B) => B): B =
+    foldLeft(l, (b:B) => b)((g,a) => b => g(f(a,b)))(z)
+    
+  def foldRightViaFoldLeft_1Book[A,B](l: List[A], z: B)(f: (A,B) => B): B =
+    foldLeftBook(l, (b:B) => b)((g,a) => b => g(f(a,b)))(z)
 }
