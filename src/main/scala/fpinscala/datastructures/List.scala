@@ -142,5 +142,14 @@ object List {
     foldRight(l1,l2)(Cons(_,_))
     
   // exercise 3.15
-  def concat[A](ls: List[List[A]]): List[A] = ???
+  def concat[A](ls: List[List[A]]): List[A] = {
+    def go(l: List[List[A]], acc: List[A]): List[A] = {
+      l match {
+        case Nil       => acc
+        case Cons(h,t) => go(t, appendViaFold(h,acc))
+      }
+    }
+    
+    go(reverse(ls), Nil: List[A])
+  }
 }

@@ -12,6 +12,8 @@ object ListWS {
   val ex5 = fill(1.1, 2)                          //> ex5  : fpinscala.datastructures.List[Double] = Cons(1.1,Cons(1.1,Nil))
   val ex6 = List(1,2,3,4,5,6,7)                   //> ex6  : fpinscala.datastructures.List[Int] = Cons(1,Cons(2,Cons(3,Cons(4,Cons
                                                   //| (5,Cons(6,Cons(7,Nil)))))))
+  val ex7 = List(List(1,2),List(3,4))             //> ex7  : fpinscala.datastructures.List[fpinscala.datastructures.List[Int]] = C
+                                                  //| ons(Cons(1,Cons(2,Nil)),Cons(Cons(3,Cons(4,Nil)),Nil))
   sum(ex4)                                        //> res0: Int = 6
   product(ex5)                                    //> res1: Double = 1.2100000000000002
   tail(ex4)                                       //> res2: fpinscala.datastructures.List[Int] = Cons(2,Cons(2,Nil))
@@ -31,4 +33,6 @@ object ListWS {
   lengthL(append(fill(1,2800),fill(2,2700)))      //> res14: Int = 5500
   foldLeft(ex6,0)(_ + _)                          //> res15: Int = 28
   reverse(ex2)                                    //> res16: fpinscala.datastructures.List[String] = Cons(c,Cons(b,Cons(a,Nil)))
+  concat(ex7)                                     //> res17: fpinscala.datastructures.List[Int] = Cons(1,Cons(2,Cons(3,Cons(4,Nil)
+                                                  //| )))
 }
