@@ -156,4 +156,45 @@ object List {
   
   def concatBook[A](l: List[List[A]]): List[A] =
     foldRight(l, Nil:List[A])(append)
+    
+  // exercise 3.16
+  def addOne(l: List[Int]): List[Int] = l match {
+    case Nil       => Nil
+    case Cons(h,t) => Cons(h + 1, addOne(t))
+  }
+  
+  def add1(l: List[Int]): List[Int] =
+    foldRightViaFoldLeft(l, Nil: List[Int])((h,acc) => Cons(h+1, acc))
+  
+  // exercise 3.17
+  def doubleToString(l: List[Double]): List[String] =
+    foldRightViaFoldLeft(l, Nil: List[String])((h, acc) => Cons(h.toString, acc))
+    
+  // exercise 3.18
+  def map[A,B](l: List[A])(f: A => B): List[B] =
+    foldRightViaFoldLeft(l, Nil: List[B])((h,acc) => Cons(f(h), acc))
+    
+  // exercise 3.19
+  def filterRec[A](l: List[A])(f: A => Boolean): List[A] = {
+    def go(xs: List[A], acc: List[A]): List[A] = xs match {
+      case Nil       => acc
+      case Cons(h,t) if (f(h)) => go(t,Cons(h,acc))
+      case Cons(_,t) => go(t,acc)
+    }
+    
+    go(reverse(l), Nil)
+  }
+  
+  def filter[A](l: List[A])(f: A => Boolean): List[A] =
+    foldRightViaFoldLeft(l, Nil: List[A])((h,acc) => if (f(h)) Cons(h,acc) else acc)
+    
+  // exercise 3.20
+  def flatMap[A,B](l: List[A])(f: A => List[B]): List[B] =
+    foldRightViaFoldLeft(l, Nil: List[B])((h,acc) => append(f(h), acc))
+  
+  def flatMapBook[A,B](l: List[A])(f: A => List[B]): List[B] =
+    concat(map(l)(f))
+    
+  // exercise 3.12
+  def filterViaFlatMap[A](l: List[A])(f: A => Boolean): List[A] = ???
 }
