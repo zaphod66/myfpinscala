@@ -3,7 +3,7 @@ package fpinscala.datastructures
 import List._
 
 object ListWS {
-  println("Welcome to the Scala worksheet")       //> Welcome to the Scala worksheet
+  println("Welcome List worksheet")               //> Welcome List worksheet
   
   val ex1: List[Double] = Nil                     //> ex1  : fpinscala.datastructures.List[Double] = Nil
   val ex2 = List("a","b", "c")                    //> ex2  : fpinscala.datastructures.List[String] = Cons(a,Cons(b,Cons(c,Nil)))
