@@ -48,4 +48,6 @@ object ListWS {
   filterViaFlatMap(ex6)(_ % 2 == 0)               //> res22: fpinscala.datastructures.List[Int] = Cons(2,Cons(4,Cons(6,Nil)))
   addZip(ex8,ex9)                                 //> res23: fpinscala.datastructures.List[Int] = Cons(5,Cons(7,Cons(9,Nil)))
   zipWith(ex8,ex9)(_ + _)                         //> res24: fpinscala.datastructures.List[Int] = Cons(5,Cons(7,Cons(9,Nil)))
+  hasSubsequence(ex6,ex9)                         //> res25: Boolean = true
+  hasSubsequence(ex6,ex4)                         //> res26: Boolean = false
 }
