@@ -195,6 +195,21 @@ object List {
   def flatMapBook[A,B](l: List[A])(f: A => List[B]): List[B] =
     concat(map(l)(f))
     
-  // exercise 3.12
-  def filterViaFlatMap[A](l: List[A])(f: A => Boolean): List[A] = ???
+  // exercise 3.21
+  def filterViaFlatMap[A](l: List[A])(f: A => Boolean): List[A] =
+    flatMap(l)(x => if (f(x)) List(x) else Nil)
+    
+  // exercise 3.22
+  def addZip(l1: List[Int], l2: List[Int]): List[Int] = (l1, l2) match {
+    case (_, Nil) => Nil
+    case (Nil, _) => Nil
+    case (Cons(h1,t1), Cons(h2,t2)) => Cons(h1+h2,addZip(t1,t2))
+  }
+  
+  // exercise 3.23
+  def zipWith[A,B,C](l1: List[A], l2: List[B])(f: (A,B) => C): List[C] = (l1,l2) match {
+    case (_, Nil) => Nil
+    case (Nil, _) => Nil
+    case (Cons(h1,t1), Cons(h2,t2)) => Cons(f(h1,h2), zipWith(t1,t2)(f))
+  }
 }
