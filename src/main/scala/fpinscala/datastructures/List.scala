@@ -214,16 +214,18 @@ object List {
   }
   
   // exercise 3.24
-  def startsWith[A](l: List[A], prefix: List[A]): Boolean = (l, prefix) match {
-    case (_, Nil) => true
-    case (Cons(h1,t1), Cons(h2,t2)) if (h1 == h2) => startsWith(t1,t2)
-    case _ => false
-  }
-  
   @annotation.tailrec
-  def hasSubsequence[A](l: List[A], sub: List[A]): Boolean = l match {
-    case Nil => false
-    case Cons(h,t) if (startsWith(l, sub)) => true
-    case Cons(h,t) => hasSubsequence(t,sub)
+  def hasSubsequence[A](l: List[A], sub: List[A]): Boolean = {
+    def startsWith[A](l: List[A], prefix: List[A]): Boolean = (l, prefix) match {
+      case (_, Nil) => true
+      case (Cons(h1,t1), Cons(h2,t2)) if (h1 == h2) => startsWith(t1,t2)
+      case _ => false
+    }
+    
+    l match {
+      case Nil => false
+      case Cons(h,t) if (startsWith(l, sub)) => true
+      case Cons(h,t) => hasSubsequence(t,sub)
+    }
   }
 }
