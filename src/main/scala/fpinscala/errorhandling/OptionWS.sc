@@ -8,4 +8,11 @@ object OptionWS {
   
   opt1.map(_ + 1)                                 //> res0: fpinscala.errorhandling.Option[Int] = Some(4)
   opt2.map(_ + 1)                                 //> res1: fpinscala.errorhandling.Option[Int] = None
+  
+  opt1.getOrElse(2)                               //> res2: Int = 3
+  opt2.getOrElse(2)                               //> res3: Int = 2
+  
+  opt1.filter(_ < 4)                              //> res4: fpinscala.errorhandling.Option[Int] = Some(3)
+  opt1.filter(_ < 2)                              //> res5: fpinscala.errorhandling.Option[Int] = None
+  opt2.filter(_ < 2)                              //> res6: fpinscala.errorhandling.Option[Int] = None
 }
