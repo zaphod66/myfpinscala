@@ -48,10 +48,8 @@ object Option {
   def variance(xs: Seq[Double]): Option[Double] =
     mean(xs) flatMap (m => mean(xs.map(x => math.pow(x - m, 2))))
 
-  ///////////
-    
   def lift[A,B](f: A => B): Option[A] => Option[B] = _ map f
-  
+
   def lift_[A,B](f: A => B): Option[A] => Option[B] = (x => x map f)
   
   def Try[A](a: => A): Option[A] =
