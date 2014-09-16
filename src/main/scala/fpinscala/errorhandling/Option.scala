@@ -50,9 +50,14 @@ object Option {
 
   ///////////
     
-  def lift[A,B](f: A => B): Option[A] => Option[B] =
-    _ map f
-    
+  def lift[A,B](f: A => B): Option[A] => Option[B] = _ map f
+  
+  def lift_[A,B](f: A => B): Option[A] => Option[B] = (x => x map f)
+  
+  def Try[A](a: => A): Option[A] =
+    try Some(a)
+    catch { case e: Exception => None }
+
   // exercise 4.3
   def map2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] = (a,b) match {
     case (None,_) => None
@@ -78,4 +83,14 @@ object Option {
   def sequence_1[A](as: List[Option[A]]): Option[List[A]] =
   //as.foldRight(Some(Nil): Option[List[A]])((f,acc) => map2(f,acc)((h,t) => h :: t))
     as.foldRight(Some(Nil): Option[List[A]])((f,acc) => map2(f,acc)(_ :: _))
+    
+  // exercise 4.5
+  def traverse_inefficient[A,B](as: List[A])(f: A => Option[B]): Option[List[B]] =
+    sequence(as map f)
+  
+  def traverse[A,B](as: List[A])(f: A => Option[B]): Option[List[B]] =
+    as.foldRight(Some(Nil): Option[List[B]])((a,acc) => map2(f(a),acc)(_ :: _))
+    
+  def sequence_2[A](as: List[Option[A]]): Option[List[A]] =
+    traverse(as)(x => x)
 }
