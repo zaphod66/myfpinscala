@@ -47,4 +47,35 @@ object Option {
   // exercise 4.2
   def variance(xs: Seq[Double]): Option[Double] =
     mean(xs) flatMap (m => mean(xs.map(x => math.pow(x - m, 2))))
+
+  ///////////
+    
+  def lift[A,B](f: A => B): Option[A] => Option[B] =
+    _ map f
+    
+  // exercise 4.3
+  def map2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] = (a,b) match {
+    case (None,_) => None
+    case (_,None) => None
+    case (Some(v1), Some(v2)) => Some(f(v1,v2))
+  }
+  
+  def map2_1[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] =
+    a flatMap(aa => b map (bb => f(aa,bb)))
+  
+  def map2_2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] =
+    for {
+      aa <- a
+      bb <- b
+    } yield f(aa,bb)
+    
+  // exercise 4.4
+  def sequence[A](as: List[Option[A]]): Option[List[A]] = as match {
+      case Nil    => Some(Nil)
+      case h :: t => h flatMap(hh => sequence(t) map (tt => hh :: tt))
+    }
+    
+  def sequence_1[A](as: List[Option[A]]): Option[List[A]] =
+  //as.foldRight(Some(Nil): Option[List[A]])((f,acc) => map2(f,acc)((h,t) => h :: t))
+    as.foldRight(Some(Nil): Option[List[A]])((f,acc) => map2(f,acc)(_ :: _))
 }
