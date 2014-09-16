@@ -83,7 +83,7 @@ object Option {
   def sequence_1[A](as: List[Option[A]]): Option[List[A]] =
   //as.foldRight(Some(Nil): Option[List[A]])((f,acc) => map2(f,acc)((h,t) => h :: t))
     as.foldRight(Some(Nil): Option[List[A]])((f,acc) => map2(f,acc)(_ :: _))
-    
+
   // exercise 4.5
   def traverse_inefficient[A,B](as: List[A])(f: A => Option[B]): Option[List[B]] =
     sequence(as map f)

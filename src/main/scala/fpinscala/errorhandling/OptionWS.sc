@@ -10,7 +10,6 @@ object OptionWS {
   val opt3: Option[Int] = Some(2)                 //> opt3  : fpinscala.errorhandling.Option[Int] = Some(2)
   val str1 = List("1","3","3","4","3.1")          //> str1  : List[String] = List(1, 3, 3, 4, 3.1)
   val str2 = List("1","3","3","4")                //> str2  : List[String] = List(1, 3, 3, 4)
-  
   opt1.map(_ + 1)                                 //> res0: fpinscala.errorhandling.Option[Int] = Some(4)
   opt2.map(_ + 1)                                 //> res1: fpinscala.errorhandling.Option[Int] = None
   
