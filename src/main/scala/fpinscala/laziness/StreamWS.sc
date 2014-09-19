@@ -22,4 +22,14 @@ object StreamWS {
   s1.filter(_ % 2 == 0).toList                    //> res10: List[Int] = List(2, 4)
   s1.append(s2).toList                            //> res11: List[Int] = List(1, 2, 3, 4, 5, 6)
   s2.flatMap(x => Stream(x / 1.1, x / 1)).toList  //> res12: List[Double] = List(4.545454545454545, 5.0, 5.454545454545454, 6.0)
+  s1.find(_ == 2)                                 //> res13: Option[Int] = Some(2)
+  
+  val ones = Stream.ones                          //> ones  : fpinscala.laziness.Stream[Int] = Cons(<function0>,<function0>)
+  ones.take(5).toList                             //> res14: List[Int] = List(1, 1, 1, 1, 1)
+  ones.map(_ + 1).exists(_ % 2 == 0)              //> res15: Boolean = true
+  ones.forAll(_ != 1)                             //> res16: Boolean = false
+  ones.takeWhile(_ == 1)                          //> res17: fpinscala.laziness.Stream[Int] = Cons(<function0>,<function0>)
+  
+  Stream.constant(0.1).take(3).toList             //> res18: List[Double] = List(0.1, 0.1, 0.1)
+  Stream.constant('a').take(3).toList             //> res19: List[Char] = List(a, a, a)
 }

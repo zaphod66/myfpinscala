@@ -110,6 +110,9 @@ sealed trait Stream[+A] {
   
   def flatMap[B](f: A => Stream[B]): Stream[B] =
     foldRight(empty[B])((a,z) => f(a).append(z))
+    
+  def find(p: A => Boolean): Option[A] =
+    filter(p).headOption
 }
 
 case object Empty extends Stream[Nothing]
@@ -126,4 +129,9 @@ object Stream {
   
   def apply[A](as: A*): Stream[A] =
     if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
+    
+  val ones: Stream[Int] = Stream.cons(1, ones)
+  
+  // exercise 5.8
+  def constant[A](a: A): Stream[A] = cons(a,constant(a))
 }
