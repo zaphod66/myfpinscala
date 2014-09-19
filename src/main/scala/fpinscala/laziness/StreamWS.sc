@@ -10,5 +10,10 @@ object StreamWS {
   s1.take(2).toList                               //> res2: List[Int] = List(1, 2)
   s1.drop_recursive(2).toList                     //> res3: List[Int] = List(3, 4)
   s1.drop(2).toList                               //> res4: List[Int] = List(3, 4)
-  s1.takeWhile(_ < 3).toList                      //> res5: List[Int] = List(1, 2)
+
+  def p(n: Int): Boolean = n < 3                  //> p: (n: Int)Boolean
+  s1.takeWhile(p).toList                          //> res5: List[Int] = List(1, 2)
+  s1.exists(p)                                    //> res6: Boolean = true
+  s1.forAll(p)                                    //> res7: Boolean = false
+  s1.takeWhileViaFoldRight(p).toList              //> res8: List[Int] = List(1, 2)
 }
