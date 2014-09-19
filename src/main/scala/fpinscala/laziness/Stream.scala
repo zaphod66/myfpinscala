@@ -135,6 +135,50 @@ object Stream {
   // exercise 5.8
   def constant[A](a: A): Stream[A] = cons(a,constant(a))
   
+  def const_book[A](a: A): Stream[A] = {
+    lazy val t: Stream[A] = Cons(() => a, () => t)
+    t
+  }
+  
   // exercise 5.9
-  def from(n: Int): Stream[Int] = ???
+  def from(n: Int): Stream[Int] = cons(n,from(n+1))
+  
+  // exercise 5.10
+  def fibs(): Stream[Int] = {
+    def go(n1: Int, n2: Int): Stream[Int] = {
+      cons(n1, go(n2, n1 + n2))
+    }
+    
+    go(0, 1)
+  }
+  
+  // exercise 5.11
+  def unfold[A,S](z: S)(f: S => Option[(A,S)]): Stream[A] = {
+    def go(s: S): Stream[A] = {
+      f(s) match {
+        case Some((a,s1)) => cons(a, go(s1))
+        case None => empty[A]
+      }
+    }
+    
+    go(z)
+  }
+  
+  def unfold_Book[A,S](z: S)(f: S => Option[(A,S)]): Stream[A] =
+    f(z) match {
+      case Some((a,s)) => cons(a, unfold_Book(s)(f))
+      case None => empty
+    }
+  
+  // exercise 5.12
+  def fromViaUnfold(n: Int): Stream[Int] =
+    unfold(n)(n => Some((n, n+1)))
+    
+  def fibsViaUnfold(): Stream[Int] =
+    unfold((0,1)) { case (f0,f1) => Some((f0,(f1,f0+f1))) }
+  
+  def constantViaUnfold[A](a: A): Stream[A] =
+    unfold(a)(a => Some((a,a)))
+    
+  def onesViaUnfold: Stream[Int] = constantViaUnfold(1)
 }
