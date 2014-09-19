@@ -10,4 +10,5 @@ object StreamWS {
   s1.take(2).toList                               //> res2: List[Int] = List(1, 2)
   s1.drop_recursive(2).toList                     //> res3: List[Int] = List(3, 4)
   s1.drop(2).toList                               //> res4: List[Int] = List(3, 4)
+  s1.takeWhile(_ < 3).toList                      //> res5: List[Int] = List(1, 2)
 }

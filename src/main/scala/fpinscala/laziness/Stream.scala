@@ -64,7 +64,14 @@ sealed trait Stream[+A] {
   }
   
   // exercise 5.3
-  def takeWhile(p: A => Boolean): Stream[A] = ???
+  def takeWhile(p: A => Boolean): Stream[A] = this match {
+    case Empty     => Stream();
+    case Cons(h,t) => {
+      val hd = h();
+      if (p(hd)) cons(hd, t().takeWhile(p))
+      else Stream()
+    }
+  }
 }
 
 case object Empty extends Stream[Nothing]
