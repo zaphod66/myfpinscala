@@ -134,4 +134,7 @@ object Stream {
   
   // exercise 5.8
   def constant[A](a: A): Stream[A] = cons(a,constant(a))
+  
+  // exercise 5.9
+  def from(n: Int): Stream[Int] = ???
 }
