@@ -39,4 +39,8 @@ object StreamWS {
   fibsViaUnfold.take(8).toList                    //> res23: List[Int] = List(0, 1, 1, 2, 3, 5, 8, 13)
   constantViaUnfold('a').take(3).toList           //> res24: List[Char] = List(a, a, a)
   onesViaUnfold.take(5).toList                    //> res25: List[Int] = List(1, 1, 1, 1, 1)
+  s1.mapViaUnfold(_ + 1).toList                   //> res26: List[Int] = List(2, 3, 4, 5)
+  s1.takeWhileViaUnfold(p).toList                 //> res27: List[Int] = List(1, 2)
+  s1.zipWith(s2)(_+_).toList                      //> res28: List[Int] = List(6, 8)
+  s1.zip(s2).toList                               //> res29: List[(Int, Int)] = List((1,5), (2,6))
 }
