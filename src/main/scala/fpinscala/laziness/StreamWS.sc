@@ -45,4 +45,8 @@ object StreamWS {
   s1.zip(s2).toList                               //> res29: List[(Int, Int)] = List((1,5), (2,6))
   s1.zipAll(s2).toList                            //> res30: List[(Option[Int], Option[Int])] = List((Some(1),Some(5)), (Some(2),
                                                   //| Some(6)), (Some(3),None), (Some(4),None))
+  s1.startsWith(s1.take(2))                       //> res31: Boolean = true
+  s1.startsWith(s2)                               //> res32: Boolean = false
+  s2.tails.toList.map(_.toList)                   //> res33: List[List[Int]] = List(List(5, 6), List(6), List())
+  s2.tails_Book.toList.map(_.toList)              //> res34: List[List[Int]] = List(List(5, 6), List(6), List())
 }

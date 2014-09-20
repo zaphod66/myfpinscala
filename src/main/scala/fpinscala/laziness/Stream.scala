@@ -151,6 +151,25 @@ sealed trait Stream[+A] {
     }
   
   def zipAll[B](s: Stream[B]): Stream[(Option[A],Option[B])] = zipWithAll(s)((_,_))
+  
+  // exercise 5.14
+  def startsWith[A](s: Stream[A]): Boolean =
+    zipAll(s).takeWhile(!_._2.isEmpty) forAll {
+      case (h1,h2) => (h1 == h2)
+    }
+  
+  // exercise 5.15
+  def tails: Stream[Stream[A]] =
+    unfold(this) {
+      case Cons(h,t) => Some((Cons(h,t), t()))
+      case Empty     => None
+    } append Stream(Empty)
+    
+  def tails_Book: Stream[Stream[A]] =
+    unfold(this) {
+      case Empty => None
+      case s     => Some(s,s drop 1)
+    } append Stream(Empty)
 }
 
 case object Empty extends Stream[Nothing]
