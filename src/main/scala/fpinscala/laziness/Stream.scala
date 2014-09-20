@@ -141,6 +141,16 @@ sealed trait Stream[+A] {
     }
   
   def zip[B](s: Stream[B]): Stream[(A,B)] = zipWith(s)((_,_))
+  
+  def zipWithAll[B,C](s: Stream[B])(f: (Option[A],Option[B]) => C): Stream[C] =
+    unfold((this,s)) {
+      case (Empty,Empty)             => None
+      case (Cons(h,t),Empty)         => Some(f(Some(h()),Option.empty[B]) -> (t(), empty[B]))
+      case (Empty,Cons(h,t))         => Some(f(Option.empty[A],Some(h())) -> (empty[A] ,t()))
+      case (Cons(h1,t1),Cons(h2,t2)) => Some(f(Some(h1()),Some(h2())) -> (t1(),t2()))
+    }
+  
+  def zipAll[B](s: Stream[B]): Stream[(Option[A],Option[B])] = zipWithAll(s)((_,_))
 }
 
 case object Empty extends Stream[Nothing]

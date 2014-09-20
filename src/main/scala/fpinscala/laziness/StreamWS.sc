@@ -43,4 +43,6 @@ object StreamWS {
   s1.takeWhileViaUnfold(p).toList                 //> res27: List[Int] = List(1, 2)
   s1.zipWith(s2)(_+_).toList                      //> res28: List[Int] = List(6, 8)
   s1.zip(s2).toList                               //> res29: List[(Int, Int)] = List((1,5), (2,6))
+  s1.zipAll(s2).toList                            //> res30: List[(Option[Int], Option[Int])] = List((Some(1),Some(5)), (Some(2),
+                                                  //| Some(6)), (Some(3),None), (Some(4),None))
 }
