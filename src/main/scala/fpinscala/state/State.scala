@@ -193,12 +193,12 @@ object State {
 
 // exercise 6.11
 
-sealed trait input
-case object coin extends input
-case object turn extends input
+sealed trait Input
+case object Coin extends Input
+case object Turn extends Input
 
-case class machine(locked: Boolean, coins: Int, candies: Int)
+case class Machine(locked: Boolean, coins: Int, candies: Int)
 
-object candy {
-  
+object Candy {
+  def simulateMachine(inputs: List[Input]): State[Machine,(Int,Int)] = ???
 }
