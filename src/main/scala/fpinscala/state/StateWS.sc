@@ -38,5 +38,8 @@ object StateWS {
                                                   //| ,SimpleRNG(197491923327988))
   map2ViaFlatMap(int,doubleViaMap)((_, _))(rng1)  //> res12: ((Int, Double), fpinscala.state.RNG) = ((16159453,0.5967354848980904)
                                                   //| ,SimpleRNG(197491923327988))
-
+  def rollDie: Rand[Int] = map(nonNegativeLessThan(6))(_+1)
+                                                  //> rollDie: => fpinscala.state.RNG => (Int, fpinscala.state.RNG)
+  sequence(List.fill(25)(rollDie))(rng1)          //> res13: (List[Int], fpinscala.state.RNG) = (List(2, 3, 2, 4, 5, 5, 3, 1, 5, 3
+                                                  //| , 4, 5, 1, 3, 2, 4, 4, 3, 4, 5, 6, 5, 6, 3, 1),SimpleRNG(173755461652901))
 }
