@@ -34,4 +34,9 @@ object StateWS {
                                                   //| on1>, <function1>, <function1>)
   sequence(fs)(rng1)                              //> res10: (List[Any], fpinscala.state.RNG) = (List(16159453, 0.5967354848980904
                                                   //| , (-340305902,0.9386595427058637)),SimpleRNG(149370390209998))
+  map2(int,doubleViaMap)((_, _))(rng1)            //> res11: ((Int, Double), fpinscala.state.RNG) = ((16159453,0.5967354848980904)
+                                                  //| ,SimpleRNG(197491923327988))
+  map2ViaFlatMap(int,doubleViaMap)((_, _))(rng1)  //> res12: ((Int, Double), fpinscala.state.RNG) = ((16159453,0.5967354848980904)
+                                                  //| ,SimpleRNG(197491923327988))
+
 }

@@ -132,4 +132,14 @@ object RNG {
       val mod = i % n
       if (i + (n-1) - mod >= 0) unit(mod) else nonNegativeLessThan(n)
     }
+  
+  // exercise 6.9
+  def mapViaFlatMap[A,B](r: Rand[A])(f: A => B): Rand[B] =
+    flatMap(r)(a => unit(f(a)))
+
+  def map2ViaFlatMap[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A,B) => C): Rand[C] =
+    flatMap(ra)(a => flatMap(rb)(b => unit(f(a,b))))
+    
+  def map2ViaFlatMap_Book[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A,B) => C): Rand[C] =
+    flatMap(ra)(a => mapViaFlatMap(rb)(b => f(a,b)))
 }
