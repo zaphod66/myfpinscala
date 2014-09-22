@@ -180,7 +180,25 @@ object State {
     
   val int: Rand[Int] = State(RNG.int)
   def ints(n: Int) = sequence(List.fill(n)(int))
-  
   def nonNegativeLessThan(n: Int): Rand[Int] = State(RNG.nonNegativeLessThan(n))
+  
+  def get[S]: State[S,S] = State(s => (s,s))
+  def set[S](s: S): State[S,Unit] = State(_ => ((),s))
+  
+  def modify[S](f: S => S): State[S,Unit] = for {
+    s <- get
+    _ <- set(f(s))
+  } yield ()
+}
+
+// exercise 6.11
+
+sealed trait input
+case object coin extends input
+case object turn extends input
+
+case class machine(locked: Boolean, coins: Int, candies: Int)
+
+object candy {
   
 }
