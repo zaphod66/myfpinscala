@@ -32,7 +32,7 @@ object RNG {
   // exercise 6.2
   def double(rng: RNG): (Double,RNG) = {
     val (i,r) = nonNegativeInt(rng)
-    val d = i.toDouble / (Int.MaxValue + 1)
+    val d = i / (Int.MaxValue.toDouble + 1)
     (d,r)
   }
   
@@ -67,4 +67,69 @@ object RNG {
   
     go(n,rng,Nil)
   }
+  
+  type Rand[+A] = RNG => (A,RNG)
+  
+  val int: Rand[Int] = _.nextInt
+  
+  def unit[A](a: A): Rand[A] = rng => (a,rng)
+  
+  def map[A,B](s: Rand[A])(f: A => B): Rand[B] =
+    rng => {
+      val (a, rng2) = s(rng)
+      (f(a), rng2)
+    }
+    
+  def nonNegativeEven: Rand[Int] =
+    map(nonNegativeInt)(i => i - i % 2)
+    
+  // exercise 6.5
+  def doubleViaMap: Rand[Double] =
+    map(nonNegativeInt)(_ / (Int.MaxValue.toDouble + 1))
+  
+  // exercise 6.6
+  def map2[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A,B) => C): Rand[C] = {
+    r1 => {
+      val (a,r2) = ra(r1)
+      val (b,r3) = rb(r2)
+      
+      (f(a,b), r3)
+    }
+  }
+  
+  def both[A,B](ra: Rand[A], rb: Rand[B]): Rand[(A,B)] =
+    map2(ra,rb)((_,_))
+    
+  def intDoubleRand: Rand[(Int,Double)] =
+    both(int,double)
+    
+  def doubleIntRand: Rand[(Double,Int)] =
+    both(double,int)
+    
+  // exercise 6.7
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = fs match {
+    case Nil     => unit(List[A]())
+    case r :: rs => {
+      map2(r,sequence(rs))(_ :: _)
+    }
+  }
+  
+  def sequence_Book[A](fs: List[Rand[A]]): Rand[List[A]] =
+    fs.foldRight(unit(List[A]()))((f,acc) => map2(f,acc)(_ :: _))
+  
+  def intsViaSeq(n: Int) = sequence(List.fill(n)(int))
+  def intsViaSeq_(n: Int) = sequence_Book(List.fill(n)(int))
+  
+  // exercise 6.8
+  def flatMap[A,B](f: Rand[A])(g: A => Rand[B]): Rand[B] =
+    rng1 => {
+      val (a, rng2) = f(rng1)
+      g(a)(rng2)
+    }
+    
+  def nonNegativeLessThan(n: Int): Rand[Int] =
+    flatMap(nonNegativeInt) { i =>
+      val mod = i % n
+      if (i + (n-1) - mod >= 0) unit(mod) else nonNegativeLessThan(n)
+    }
 }

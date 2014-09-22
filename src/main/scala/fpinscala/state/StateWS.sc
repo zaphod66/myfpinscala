@@ -14,8 +14,24 @@ object StateWS {
                                                   //| n4  : Int = -1281479697
                                                   //| rng4  : fpinscala.state.RNG = SimpleRNG(197491923327988)
   nonNegativeInt(rng4)                            //> res0: (Int, fpinscala.state.RNG) = (340305901,SimpleRNG(259172689157871))
-  double(rng4)                                    //> res1: (Double, fpinscala.state.RNG) = (-0.15846728393808007,SimpleRNG(259172
-                                                  //| 689157871))
-  ints(2)(rng1)                                   //> res2: (List[Int], fpinscala.state.RNG) = (List(-1281479697, 16159453),Simple
-                                                  //| RNG(197491923327988))
+  double(rng4)                                    //> res1: (Double, fpinscala.state.RNG) = (0.15846728393808007,SimpleRNG(2591726
+                                                  //| 89157871))
+  doubleViaMap(rng4)                              //> res2: (Double, fpinscala.state.RNG) = (0.15846728393808007,SimpleRNG(2591726
+                                                  //| 89157871))
+ 
+  ints(3)(rng1)                                   //> res3: (List[Int], fpinscala.state.RNG) = (List(-340305902, -1281479697, 1615
+                                                  //| 9453),SimpleRNG(259172689157871))
+  intsViaSeq(3)(rng1)                             //> res4: (List[Int], fpinscala.state.RNG) = (List(16159453, -1281479697, -34030
+                                                  //| 5902),SimpleRNG(259172689157871))
+
+  int(rng1)                                       //> res5: (Int, fpinscala.state.RNG) = (16159453,SimpleRNG(1059025964525))
+  unit(1)(rng1)                                   //> res6: (Int, fpinscala.state.RNG) = (1,SimpleRNG(42))
+  map(unit(1))(_ + 1)(rng1)                       //> res7: (Int, fpinscala.state.RNG) = (2,SimpleRNG(42))
+  nonNegativeEven(rng1)                           //> res8: (Int, fpinscala.state.RNG) = (16159452,SimpleRNG(1059025964525))
+  intDoubleRand(rng1)                             //> res9: ((Int, Double), fpinscala.state.RNG) = ((16159453,0.5967354848980904),
+                                                  //| SimpleRNG(197491923327988))
+  val fs = List(int,doubleViaMap,intDoubleRand)   //> fs  : List[fpinscala.state.RNG => (Any, fpinscala.state.RNG)] = List(<functi
+                                                  //| on1>, <function1>, <function1>)
+  sequence(fs)(rng1)                              //> res10: (List[Any], fpinscala.state.RNG) = (List(16159453, 0.5967354848980904
+                                                  //| , (-340305902,0.9386595427058637)),SimpleRNG(149370390209998))
 }
