@@ -42,4 +42,13 @@ object StateWS {
                                                   //> rollDie: => fpinscala.state.RNG => (Int, fpinscala.state.RNG)
   sequence(List.fill(25)(rollDie))(rng1)          //> res13: (List[Int], fpinscala.state.RNG) = (List(2, 3, 2, 4, 5, 5, 3, 1, 5, 3
                                                   //| , 4, 5, 1, 3, 2, 4, 4, 3, 4, 5, 6, 5, 6, 3, 1),SimpleRNG(173755461652901))
+  val s1 = State(int)                             //> s1  : fpinscala.state.State[fpinscala.state.RNG,Int] = State(<function1>)
+  val s2 = State(double)                          //> s2  : fpinscala.state.State[fpinscala.state.RNG,Double] = State(<function1>)
+                                                  //| 
+  s1.map(_ + 0).run(rng1)                         //> res14: (Int, fpinscala.state.RNG) = (16159453,SimpleRNG(1059025964525))
+  s1.map(_ + 1).run(rng1)                         //> res15: (Int, fpinscala.state.RNG) = (16159454,SimpleRNG(1059025964525))
+  s2.run(rng1)                                    //> res16: (Double, fpinscala.state.RNG) = (0.007524831686168909,SimpleRNG(10590
+                                                  //| 25964525))
+  s1.map2(s2)(_ * _).run(rng1)                    //> res17: (Double, fpinscala.state.RNG) = (9642919.021642901,SimpleRNG(19749192
+                                                  //| 3327988))
 }
