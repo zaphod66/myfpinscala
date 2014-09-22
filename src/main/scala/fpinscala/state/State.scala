@@ -177,4 +177,10 @@ object State {
   
   def sequence[S,A](sas: List[State[S,A]]): State[S,List[A]] =
     sas.foldRight(unit(List[A]()): State[S,List[A]])((f,acc) => f.map2(acc)(_ :: _))
+    
+  val int: Rand[Int] = State(RNG.int)
+  def ints(n: Int) = sequence(List.fill(n)(int))
+  
+  def nonNegativeLessThan(n: Int): Rand[Int] = State(RNG.nonNegativeLessThan(n))
+  
 }
