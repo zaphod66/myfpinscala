@@ -49,4 +49,7 @@ object StreamWS {
   s1.startsWith(s2)                               //> res32: Boolean = false
   s2.tails.toList.map(_.toList)                   //> res33: List[List[Int]] = List(List(5, 6), List(6), List())
   s2.tails_Book.toList.map(_.toList)              //> res34: List[List[Int]] = List(List(5, 6), List(6), List())
+  s1.hasSubsequence(s1.drop(1).take(2))           //> res35: Boolean = true
+  s1.hasSubsequence(s2)                           //> res36: Boolean = false
+  s1.scanRight(0)(_+_).toList                     //> res37: List[Int] = List(10, 9, 7, 4, 0)
 }
