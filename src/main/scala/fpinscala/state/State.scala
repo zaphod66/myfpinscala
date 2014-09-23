@@ -68,7 +68,8 @@ object RNG {
   
   type Rand[+A] = RNG => (A,RNG)
   
-  val int: Rand[Int] = _.nextInt
+//val int: Rand[Int] = _.nextInt
+  val int: Rand[Int] = x => x.nextInt
   
   def unit[A](a: A): Rand[A] = rng => (a,rng)
   
@@ -197,8 +198,26 @@ sealed trait Input
 case object Coin extends Input
 case object Turn extends Input
 
-case class Machine(locked: Boolean, coins: Int, candies: Int)
+case class Machine(locked: Boolean, candies: Int, coins: Int)
 
 object Candy {
-  def simulateMachine(inputs: List[Input]): State[Machine,(Int,Int)] = ???
+  def nextMachine(m: Machine, i: Input): Machine = (i,m) match {
+    case (_,    Machine(_, 0, _))     => m
+    case (Coin, Machine(false, _, _)) => m
+    case (Turn, Machine(true, _, _))  => m
+    case (Coin, Machine(true,  candies, coins)) => Machine(false, candies, coins + 1)
+    case (Turn, Machine(false, candies, coins)) => Machine(true,  candies - 1, coins)
+  }
+  
+  def nextState(i: Input) = { modify((m: Machine) => nextMachine(m, i)) }
+  
+  def simulateMachine(inputs: List[Input]): State[Machine,(Int,Int)] = {
+    val allStates = inputs.map(nextState)
+    val seqStates = sequence(allStates)
+    
+    for {
+      _ <- seqStates
+      m <- get
+    } yield (m.coins,m.candies)
+  }
 }

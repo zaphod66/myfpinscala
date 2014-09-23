@@ -19,14 +19,15 @@ object StateWS {
   doubleViaMap(rng4)                              //> res2: (Double, fpinscala.state.RNG) = (0.15846728393808007,SimpleRNG(2591726
                                                   //| 89157871))
  
-  ints(3)(rng1)                                   //> res3: (List[Int], fpinscala.state.RNG) = (List(-340305902, -1281479697, 1615
-                                                  //| 9453),SimpleRNG(259172689157871))
-  intsViaSeq(3)(rng1)                             //> res4: (List[Int], fpinscala.state.RNG) = (List(16159453, -1281479697, -34030
-                                                  //| 5902),SimpleRNG(259172689157871))
+  ints(4)(rng1)                                   //> res3: (List[Int], fpinscala.state.RNG) = (List(-2015756020, -340305902, -128
+                                                  //| 1479697, 16159453),SimpleRNG(149370390209998))
+  intsViaSeq(4)(rng1)                             //> res4: (List[Int], fpinscala.state.RNG) = (List(16159453, -1281479697, -34030
+                                                  //| 5902, -2015756020),SimpleRNG(149370390209998))
 
   int(rng1)                                       //> res5: (Int, fpinscala.state.RNG) = (16159453,SimpleRNG(1059025964525))
-  unit(1)(rng1)                                   //> res6: (Int, fpinscala.state.RNG) = (1,SimpleRNG(42))
-  map(unit(1))(_ + 1)(rng1)                       //> res7: (Int, fpinscala.state.RNG) = (2,SimpleRNG(42))
+  val u1 = unit(1)                                //> u1  : fpinscala.state.RNG => (Int, fpinscala.state.RNG) = <function1>
+  u1(rng1)                                        //> res6: (Int, fpinscala.state.RNG) = (1,SimpleRNG(42))
+  map(u1)(_ + 1)(rng1)                            //> res7: (Int, fpinscala.state.RNG) = (2,SimpleRNG(42))
   nonNegativeEven(rng1)                           //> res8: (Int, fpinscala.state.RNG) = (16159452,SimpleRNG(1059025964525))
   intDoubleRand(rng1)                             //> res9: ((Int, Double), fpinscala.state.RNG) = ((16159453,0.5967354848980904),
                                                   //| SimpleRNG(197491923327988))
