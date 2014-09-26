@@ -14,4 +14,5 @@ object ParWS {
     }
   }                                               //> sum: (ints: IndexedSeq[Int])java.util.concurrent.ExecutorService => java.uti
                                                   //| l.concurrent.Future[Int]
+
 }
