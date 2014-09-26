@@ -53,6 +53,7 @@ sealed trait Stream[+A] {
   }
   
   def drop(n: Int): Stream[A] = {
+    @annotation.tailrec
     def go(s: Stream[A], n: Int): Stream[A] =
       if (n <= 0) s
       else s match {
@@ -147,7 +148,7 @@ sealed trait Stream[+A] {
       case (Empty,Empty)             => None
       case (Cons(h,t),Empty)         => Some(f(Some(h()),Option.empty[B]) -> (t(), empty[B]))
       case (Empty,Cons(h,t))         => Some(f(Option.empty[A],Some(h())) -> (empty[A] ,t()))
-      case (Cons(h1,t1),Cons(h2,t2)) => Some(f(Some(h1()),Some(h2())) -> (t1(),t2()))
+      case (Cons(h1,t1),Cons(h2,t2)) => Some(f(Some(h1()),Some(h2()))     -> (t1(),t2()))
     }
   
   def zipAll[B](s: Stream[B]): Stream[(Option[A],Option[B])] = zipWithAll(s)((_,_))
