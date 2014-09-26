@@ -25,7 +25,6 @@ object Par {
   // exercise 7.3
   def map2[A,B,C](pa: Par[A], pb: Par[B])(f: (A,B) => C): Par[C] =
     (es: ExecutorService) => {
-//      val (af, bf) = (pa(es), pb(es))
       val af = pa(es)
       val bf = pb(es)
       Map2Future(af,bf,f)
@@ -62,6 +61,47 @@ object Par {
   // exercise 7.4
   def asyncF[A,B](f: A => B): A => Par[B] = a => fork(unit(f(a)))
   
-  def sortPar(p: Par[List[Int]]): Par[List[Int]] = 
-    map2(p,unit(()))((a,_) => a.sorted)
+  def sortPar_(parList: Par[List[Int]]): Par[List[Int]] = 
+    map2(parList,unit(()))((a,_) => a.sorted)
+    
+  def sortPar(parList: Par[List[Int]]): Par[List[Int]] = 
+    map(parList)(_.sorted)
+    
+  def map[A,B](pa: Par[A])(f: A => B): Par[B] =
+    map2(pa,unit(()))((a,_) => f(a))
+    
+  // exercise 7.5
+  def sequence[A](ps: List[Par[A]]): Par[List[A]] =
+    ps.foldRight(unit(List()): Par[List[A]])((a,acc) => map2(a,acc)(_ :: _))
+  
+  def sequence_balanced[A](is: IndexedSeq[Par[A]]): Par[IndexedSeq[A]] = fork {
+    if (is.isEmpty) unit(Vector())
+    else if (is.length == 1) map(is.head)(Vector(_))
+    else {
+      val (l,r) = is.splitAt(is.length / 2)
+      map2(sequence_balanced(l),sequence_balanced(r))(_ ++ _)
+    }
+  }
+  
+  def sequence_Book[A](ps: List[Par[A]]): Par[List[A]] =
+    map(sequence_balanced(ps.toIndexedSeq))(_.toList)
+    
+  def parMap[A,B](ps: List[A])(f: A => B): Par[List[B]] = fork {
+    val fbs = ps.map(asyncF(f))
+    sequence(fbs)
+  }
+  
+  // exercise 7.6
+  def parFilter_simple[A](as: List[A])(p: A => Boolean): Par[List[A]] = as match {
+    case Nil    => unit(List())
+    case h :: t => if (p(h)) map2(unit(h), parFilter_simple(t)(p))(_ :: _) else parFilter_simple(t)(p)
+  }
+  
+//def parFilter[A](as: List[A])(p: A => Boolean): Par[List[A]] = {
+  def parFilter[A](as: List[A])(p: A => Boolean) = {
+//  val pars: List[Par[List[A]]] = as map (asyncF(a => if (p(a)) List(a) else List()))
+    val pars = as map (asyncF(a => if (p(a)) List(a) else List()))
+    val seq  = sequence(pars)
+    map(seq)(_.flatten)
+  }
 }
