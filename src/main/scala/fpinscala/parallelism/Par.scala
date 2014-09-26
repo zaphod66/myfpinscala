@@ -1,6 +1,7 @@
 package fpinscala.parallelism
 
 import java.util.concurrent._
+// import scala.language.higherKinds
 
 object Par {
   type Par[A] = ExecutorService => Future[A]
@@ -24,6 +25,7 @@ object Par {
   // exercise 7.3
   def map2[A,B,C](pa: Par[A], pb: Par[B])(f: (A,B) => C): Par[C] =
     (es: ExecutorService) => {
+//      val (af, bf) = (pa(es), pb(es))
       val af = pa(es)
       val bf = pb(es)
       Map2Future(af,bf,f)
@@ -59,4 +61,7 @@ object Par {
     
   // exercise 7.4
   def asyncF[A,B](f: A => B): A => Par[B] = a => fork(unit(f(a)))
+  
+  def sortPar(p: Par[List[Int]]): Par[List[Int]] = 
+    map2(p,unit(()))((a,_) => a.sorted)
 }
