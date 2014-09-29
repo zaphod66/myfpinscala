@@ -64,7 +64,7 @@ sealed trait Stream[+A] {
     go(this,n)
   }
   
-  def tail: Stream[A] = drop(1)
+  def tail = drop(1)
   
   // exercise 5.3
   def takeWhile(p: A => Boolean): Stream[A] = this match {
@@ -143,6 +143,12 @@ sealed trait Stream[+A] {
       case _ => None
     }
   
+  def zipWithPlain[B, C](bs: Stream[B])(f: (A, B) => C): Stream[C] =
+    (for {
+      a <- headOption
+      b <- bs.headOption
+    } yield Stream.cons(f(a, b), tail.zipWithPlain(bs.tail)(f))).getOrElse(Empty)
+      
   def zip[B](s: Stream[B]): Stream[(A,B)] = zipWith(s)((_,_))
   
   def zipWithAll[B,C](s: Stream[B])(f: (Option[A],Option[B]) => C): Stream[C] =

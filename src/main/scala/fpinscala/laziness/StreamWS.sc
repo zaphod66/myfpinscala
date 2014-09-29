@@ -52,4 +52,39 @@ object StreamWS {
   s1.hasSubsequence(s1.drop(1).take(2))           //> res35: Boolean = true
   s1.hasSubsequence(s2)                           //> res36: Boolean = false
   s1.scanRight(0)(_+_).toList                     //> res37: List[Int] = List(10, 9, 7, 4, 0)
+  
+  def f1 = from(1)                                //> f1: => fpinscala.laziness.Stream[Int]
+  f1.take(2).toList                               //> res38: List[Int] = List(1, 2)
+  f1.zip(f1).take(3).toList                       //> res39: List[(Int, Int)] = List((1,1), (2,2), (3,3))
+  
+  def f2 = fromViaUnfold(1)                       //> f2: => fpinscala.laziness.Stream[Int]
+  f2.zip(f2).take(3).toList                       //> res40: List[(Int, Int)] = List((1,1), (2,2), (3,3))
+  
+  def fibsZip(): Stream[Int] =
+    Stream(0, 1).
+      append(fibsZip.tail.zipWithPlain(fibsZip)((a,b) => (a,b)).map(p => p._1 + p._2))
+                                                  //> fibsZip: ()fpinscala.laziness.Stream[Int]
+  def fibsZipWithPlain(): Stream[Int] =
+    Stream(0, 1).
+      append(fibsZipWithPlain.tail.zipWithPlain(fibsZipWithPlain)(_ + _))
+                                                  //> fibsZipWithPlain: ()fpinscala.laziness.Stream[Int]
+  fibsZipWithPlain.take(1).toList                 //> java.lang.StackOverflowError
+                                                  //| 	at scala.collection.mutable.AbstractSeq.<init>(Seq.scala:47)
+                                                  //| 	at scala.collection.mutable.WrappedArray.<init>(WrappedArray.scala:35)
+                                                  //| 	at scala.collection.mutable.WrappedArray$ofInt.<init>(WrappedArray.scala
+                                                  //| :151)
+                                                  //| 	at scala.LowPriorityImplicits.wrapIntArray(LowPriorityImplicits.scala:76
+                                                  //| )
+                                                  //| 	at fpinscala.laziness.StreamWS$$anonfun$main$1.fibsZipWithPlain$1(fpinsc
+                                                  //| ala.laziness.StreamWS.scala:66)
+                                                  //| 	at fpinscala.laziness.StreamWS$$anonfun$main$1.fibsZipWithPlain$1(fpinsc
+                                                  //| ala.laziness.StreamWS.scala:67)
+                                                  //| 	at fpinscala.laziness.StreamWS$$anonfun$main$1.fibsZipWithPlain$1(fpinsc
+                                                  //| ala.laziness.StreamWS.scala:67)
+                                                  //| 	at fpinscala.laziness.StreamWS$$anonfun$main$1.fibsZipWithPlain$1(fpinsc
+                                                  //| ala.laziness.StreamWS.scala:67)
+                                                  //| 	at fpinscala.laziness.StreamWS$$anonfun$main$1.fibsZipWithPlain$1(fpinsc
+                                                  //| ala.laziness.StreamWS.scala:67)
+                                                  //| 	at fpinscala.laziness.StreamWS$$anonfun$main$1.fibsZipWithPl
+                                                  //| Output exceeds cutoff limit.
 }
