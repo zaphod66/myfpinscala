@@ -97,9 +97,7 @@ object Par {
     case h :: t => if (p(h)) map2(unit(h), parFilter_simple(t)(p))(_ :: _) else parFilter_simple(t)(p)
   }
   
-//def parFilter[A](as: List[A])(p: A => Boolean): Par[List[A]] = {
-  def parFilter[A](as: List[A])(p: A => Boolean) = {
-//  val pars: List[Par[List[A]]] = as map (asyncF(a => if (p(a)) List(a) else List()))
+  def parFilter[A](as: List[A])(p: A => Boolean): Par[List[A]] = {
     val pars = as map (asyncF(a => if (p(a)) List(a) else List()))
     val seq  = sequence(pars)
     map(seq)(_.flatten)
