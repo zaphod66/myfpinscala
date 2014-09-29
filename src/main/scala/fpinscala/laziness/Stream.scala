@@ -64,6 +64,8 @@ sealed trait Stream[+A] {
     go(this,n)
   }
   
+  def tail: Stream[A] = drop(1)
+  
   // exercise 5.3
   def takeWhile(p: A => Boolean): Stream[A] = this match {
     case Empty     => Stream();
