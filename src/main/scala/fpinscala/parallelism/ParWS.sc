@@ -6,8 +6,9 @@ import Par._
 object ParWS {
   println("Welcome Par worksheet")                //> Welcome Par worksheet
   val pool = Executors.newFixedThreadPool(4)      //> pool  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPo
-                                                  //| olExecutor@43f3bb61[Running, pool size = 0, active threads = 0, queued tasks
+                                                  //| olExecutor@6ced9284[Running, pool size = 0, active threads = 0, queued tasks
                                                   //|  = 0, completed tasks = 0]
+//val pool = Executors.newCachedThreadPool
   
   def sum(ints: IndexedSeq[Int]): Par[Int] = {
     if (ints.size <= 1) {
@@ -32,8 +33,8 @@ object ParWS {
 
   def aFib = asyncF(fib)                          //> aFib: => Int => (java.util.concurrent.ExecutorService => java.util.concurren
                                                   //| t.Future[Int])
-  val af = aFib(20)(pool)                         //> af  : java.util.concurrent.Future[Int] = java.util.concurrent.FutureTask@562
-                                                  //| 2f08f
+  val af = aFib(20)(pool)                         //> af  : java.util.concurrent.Future[Int] = java.util.concurrent.FutureTask@210
+                                                  //| 3b386
   try {
     af.get(100, TimeUnit.MILLISECONDS)
   } catch {
@@ -52,14 +53,11 @@ object ParWS {
                                                   //| re[Int]] = List(<function1>, <function1>)
   val sb1 = sequence(lp)(pool)                    //> sb1  : java.util.concurrent.Future[List[Int]] = Map2Future(UnitFuture(1),Map
                                                   //| 2Future(UnitFuture(2),UnitFuture(List()),<function2>),<function2>)
-  val sb2 = sequence_Book(lp)(pool)               //> sb2  : java.util.concurrent.Future[List[Int]] = Map2Future(java.util.concurr
-                                                  //| ent.FutureTask@284876e0,UnitFuture(()),<function2>)
   sb1.get                                         //> res4: List[Int] = List(1, 2)
-  sb2.get                                         //> res5: List[Int] = List(1, 2)
   
   val pf = parFilter(is.toList)(p => p < 4)       //> pf  : java.util.concurrent.ExecutorService => java.util.concurrent.Future[Li
                                                   //| st[Int]] = <function1>
-  pf(pool).get                                    //> res6: List[Int] = List(1, 2, 3)
+  pf(pool).get                                    //> res5: List[Int] = List(1, 2, 3)
   
   pool.shutdown
 }
