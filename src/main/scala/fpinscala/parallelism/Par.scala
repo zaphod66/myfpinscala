@@ -102,4 +102,19 @@ object Par {
     val seq  = sequence(pars)
     map(seq)(_.flatten)
   }
+  
+  def choise[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+    es =>
+      if (run(es)(cond).get) t(es)
+      else f(es)
+      
+  // exercise 7.11
+  def choiceN[A](n: Par[Int])(choises: List[Par[A]]): Par[A] =
+    es => {
+      val index = run(es)(n).get
+      run(es)(choises(index))
+    }
+    
+  def choiseByN[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+   choiceN(map(cond)(b => if (b) 1 else 0))(List(f, t))
 }
