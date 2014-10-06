@@ -117,4 +117,24 @@ object Par {
     
   def choiseByN[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
    choiceN(map(cond)(b => if (b) 1 else 0))(List(f, t))
+   
+  // exercise 7.12
+  def choiseMap[K,V](key: Par[K])(choises: Map[K,Par[V]]): Par[V] =
+    es => {
+      val k = run(es)(key).get
+      run(es)(choises(k))
+    }
+  
+  // exercise 7.13
+  def chooser[A,B](pa: Par[A])(choises: A => Par[B]): Par[B] =
+    es => {
+      val a = run(es)(pa).get
+      run(es)(choises(a))
+    }
+    
+  def choiseByF[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+    chooser(map(cond)(b => if (b) 1 else 0))(List(f,t))
+  
+  def choiseNbyF[A](n: Par[Int])(choises: List[Par[A]]): Par[A] =
+    chooser(n)(choises)
 }
