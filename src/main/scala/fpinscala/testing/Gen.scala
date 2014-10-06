@@ -1,5 +1,8 @@
 package fpinscala.testing
 
-class Gen {
-
+trait Prop {
+  def check: Boolean
+  
+  // exercise 8.3
+  def &&(p: Prop) = this.check && p.check
 }
