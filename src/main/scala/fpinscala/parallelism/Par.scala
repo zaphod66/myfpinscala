@@ -103,38 +103,39 @@ object Par {
     map(seq)(_.flatten)
   }
   
-  def choise[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+  def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
     es =>
       if (run(es)(cond).get) t(es)
       else f(es)
       
   // exercise 7.11
-  def choiceN[A](n: Par[Int])(choises: List[Par[A]]): Par[A] =
+  def choiceN[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
     es => {
       val index = run(es)(n).get
-      run(es)(choises(index))
+      run(es)(choices(index))
     }
     
   def choiseByN[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
    choiceN(map(cond)(b => if (b) 1 else 0))(List(f, t))
    
-  // exercise 7.12
-  def choiseMap[K,V](key: Par[K])(choises: Map[K,Par[V]]): Par[V] =
+  // exercise 7.12 -> Book: chooser is normally called 'flatMap' or 'bind'
+  def choiceMap[K,V](key: Par[K])(choices: Map[K,Par[V]]): Par[V] =
     es => {
       val k = run(es)(key).get
-      run(es)(choises(k))
+      run(es)(choices(k))
     }
   
   // exercise 7.13
-  def chooser[A,B](pa: Par[A])(choises: A => Par[B]): Par[B] =
+  def chooser[A,B](pa: Par[A])(choices: A => Par[B]): Par[B] =
     es => {
       val a = run(es)(pa).get
-      run(es)(choises(a))
+      run(es)(choices(a))
     }
-    
-  def choiseByF[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
-    chooser(map(cond)(b => if (b) 1 else 0))(List(f,t))
   
-  def choiseNbyF[A](n: Par[Int])(choises: List[Par[A]]): Par[A] =
-    chooser(n)(choises)
+  def choiceByF[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+//  chooser(map(cond)(b => if (b) 1 else 0))(List(f,t))
+    chooser(cond)(b => if (b) t else f)
+  
+  def choiceNbyF[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
+    chooser(n)(choices)
 }
