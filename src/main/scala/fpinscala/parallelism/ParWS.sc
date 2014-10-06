@@ -6,7 +6,7 @@ import Par._
 object ParWS {
   println("Welcome Par worksheet")                //> Welcome Par worksheet
   val pool = Executors.newFixedThreadPool(4)      //> pool  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPo
-                                                  //| olExecutor@71394e2d[Running, pool size = 0, active threads = 0, queued tasks
+                                                  //| olExecutor@40bb0f79[Running, pool size = 0, active threads = 0, queued tasks
                                                   //|  = 0, completed tasks = 0]
 //val pool = Executors.newCachedThreadPool
   
@@ -33,8 +33,8 @@ object ParWS {
 
   def aFib = asyncF(fib)                          //> aFib: => Int => (java.util.concurrent.ExecutorService => java.util.concurren
                                                   //| t.Future[Int])
-  val af = aFib(20)(pool)                         //> af  : java.util.concurrent.Future[Int] = java.util.concurrent.FutureTask@726
-                                                  //| 87235
+  val af = aFib(20)(pool)                         //> af  : java.util.concurrent.Future[Int] = java.util.concurrent.FutureTask@377
+                                                  //| 8de07
   try {
     af.get(100, TimeUnit.MILLISECONDS)
   } catch {
@@ -71,6 +71,7 @@ object ParWS {
   
   choiceByF(pb)(unit(1),unit(2))(pool).get        //> res9: Int = 1
   choiceNbyF(unit(3))(lp)(pool).get               //> res10: Int = 4
+  choiceNViaFlatMap(unit(3))(lp)(pool).get        //> res11: Int = 4
   
   pool.shutdown
 }

@@ -138,4 +138,28 @@ object Par {
   
   def choiceNbyF[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
     chooser(n)(choices)
+    
+  //exercise 7.14
+  def join[A](p: Par[Par[A]]): Par[A] =
+    es => {
+      val a = run(es)(p).get
+      
+      run(es)(a)
+    }
+  
+  def flatMap[A,B](pa: Par[A])(f: A => Par[B]): Par[B] = {
+    val ppb = map(pa)(f)
+    val pb = join(ppb)
+      
+    pb
+  }    
+    
+  def flatMapViaJoin[A,B](p: Par[A])(f: A => Par[B]): Par[B] =
+    join(map(p)(f))
+
+  def joinViaFlatMap[A](p: Par[Par[A]]): Par[A] =
+    flatMap(p)(x => x)
+  
+  def choiceNViaFlatMap[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
+    flatMap(n)(choices)    
 }
