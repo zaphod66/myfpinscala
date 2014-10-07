@@ -35,7 +35,7 @@ sealed trait Stream[+A] {
   }
   
   // exercise 5.2
-  def take_(n: Int): Stream[A] = {
+  def take(n: Int): Stream[A] = {
     if (n <= 0) Stream()
     else this match {
       case Empty     => Stream()
@@ -44,14 +44,6 @@ sealed trait Stream[+A] {
     }
   }
   
-  def take(n: Int): Stream[A] =
-    if (n > 0) this match {
-      case Cons(h, t) if n == 1 => cons(h(), Stream.empty) // we can say Stream.empty
-      case Cons(h, t) => cons(h(), t().take(n-1))
-      case _ => Stream.empty
-    }
-    else Stream()            // or Stream()
-
   def drop_recursive(n: Int): Stream[A] = {
     if (n == 0) this
     else this match {
@@ -60,7 +52,7 @@ sealed trait Stream[+A] {
     }
   }
   
-  def drop_(n: Int): Stream[A] = {
+  def drop(n: Int): Stream[A] = {
     @annotation.tailrec
     def go(s: Stream[A], n: Int): Stream[A] =
       if (n <= 0) s
@@ -70,17 +62,6 @@ sealed trait Stream[+A] {
       }
     
     go(this,n)
-  }
-  
-  def drop(n: Int): Stream[A] = {
-    @annotation.tailrec
-    def go(s: Stream[A], n: Int): Stream[A] =
-      if (n <= 0) s
-      else s match {
-        case Cons(h,t) => go(t(), n-1) 
-        case _ => Stream()
-      }
-    go(this, n)
   }
   
   def tail = drop(1)
@@ -127,7 +108,7 @@ sealed trait Stream[+A] {
   def filter(p: A => Boolean): Stream[A] =
     foldRight(empty[A])((a,z) => if (p(a)) cons(a,z) else z)
     
-  def append[B >: A](s: Stream[B]): Stream[B] =
+  def append[B >: A](s: => Stream[B]): Stream[B] =
     foldRight(s)((a,z) => cons(a,z))
   
   def flatMap[B](f: A => Stream[B]): Stream[B] =
