@@ -63,6 +63,7 @@ object Gen {
     boolean flatMap { b => if (b) g1 else g2 }
   }
   
+  // exercise 8.8
   def weighted[A](g1: (Gen[A], Double), g2: (Gen[A], Double)): Gen[A] = {
     val thres = g1._2.abs / (g1._2.abs + g2._2.abs)
     
