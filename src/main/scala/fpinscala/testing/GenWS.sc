@@ -39,7 +39,7 @@ object GenWS {
   val prop7 = prop1 || prop3                      //> prop7  : fpinscala.testing.Prop = Prop(<function2>)
   val prop8 = prop3 || prop4                      //> prop8  : fpinscala.testing.Prop = Prop(<function2>)
   prop5.run(100,rng)                              //> res1: fpinscala.testing.Prop.Result = Passed
-  prop6.run(100,rng)                              //> res2: fpinscala.testing.Prop.Result = Falsified((right,7),3)
+  prop6.run(100,rng)                              //> res2: fpinscala.testing.Prop.Result = Falsified((right side ->,7),3)
   prop6_.run(100,rng)                             //> res3: fpinscala.testing.Prop.Result = Falsified(7,3)
   prop7.run(100,rng)                              //> res4: fpinscala.testing.Prop.Result = Passed
   prop8.run(100,rng)                              //> res5: fpinscala.testing.Prop.Result = Falsified((7,6),0)

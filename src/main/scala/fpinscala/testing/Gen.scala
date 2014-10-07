@@ -43,7 +43,7 @@ case class Prop(run: (TestCases, RNG) => Result) {
   // exercise 8.9
   def &&(p: Prop): Prop = Prop {
     (n,rng) => run(n,rng) match {
-      case Passed => p.tag("right").run(n,rng)
+      case Passed => p.tag("right side ->").run(n,rng)
       case Falsified(m,i) => Falsified(m,i)
     }
   }
@@ -71,6 +71,9 @@ case class Gen[A](sample: State[RNG,A]) {
   
   def listOfN(size: Gen[Int]): Gen[List[A]] =
     size flatMap { i => Gen.listOfN(i,this) }
+  
+  // exercise 8.10
+  def unsized: SGen[A] = SGen(_ => this)  
 }
 
 object Gen {
@@ -122,4 +125,8 @@ object Gen {
     
     Gen(State(RNG.double)) flatMap { d => if (d < thres) g1._1 else g2._1 }
   }
+}
+
+case class SGen[A](forSize: Int => Gen[A]) {
+  def apply(n: Int): Gen[A] = forSize(n)
 }
