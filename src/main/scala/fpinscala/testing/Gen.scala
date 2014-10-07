@@ -11,6 +11,13 @@ trait Prop {
 }
 
 case class Gen[A](sample: State[RNG,A]) {
+  // exercise 8.6
+  def flatMap[B](f: A => Gen[B]): Gen[B] = {
+    Gen(sample.flatMap(a => f(a).sample))
+  }
+  
+  def listOfN(size: Gen[Int]): Gen[List[A]] =
+    size flatMap { i => Gen.listOfN(i,this) }
 }
 
 object Gen {
@@ -44,6 +51,4 @@ object Gen {
     val l = List.fill(n)(g.sample)
     Gen(State.sequence(l))
   }
-  
-  
 }
