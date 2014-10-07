@@ -45,6 +45,7 @@ object StreamWS {
   s1.zip(s2).toList                               //> res29: List[(Int, Int)] = List((1,5), (2,6))
   s1.zipAll(s2).toList                            //> res30: List[(Option[Int], Option[Int])] = List((Some(1),Some(5)), (Some(2),
                                                   //| Some(6)), (Some(3),None), (Some(4),None))
+                        
   s1.startsWith(s1.take(2))                       //> res31: Boolean = true
   s1.startsWith(s2)                               //> res32: Boolean = false
   s2.tails.toList.map(_.toList)                   //> res33: List[List[Int]] = List(List(5, 6), List(6), List())
@@ -52,4 +53,27 @@ object StreamWS {
   s1.hasSubsequence(s1.drop(1).take(2))           //> res35: Boolean = true
   s1.hasSubsequence(s2)                           //> res36: Boolean = false
   s1.scanRight(0)(_+_).toList                     //> res37: List[Int] = List(10, 9, 7, 4, 0)
+  
+  def f1 = from(1)                                //> f1: => fpinscala.laziness.Stream[Int]
+  f1.take(2).toList                               //> res38: List[Int] = List(1, 2)
+  f1.zip(f1).take(3).toList                       //> res39: List[(Int, Int)] = List((1,1), (2,2), (3,3))
+  
+  def f2 = fromViaUnfold(1)                       //> f2: => fpinscala.laziness.Stream[Int]
+  f2.zip(f2).take(3).toList                       //> res40: List[(Int, Int)] = List((1,1), (2,2), (3,3))
+  
+  def fibsZip(): Stream[Int] =
+    Stream(0, 1).
+      append(fibsZip.tail.zipWithPlain(fibsZip)((a,b) => (a,b)).map(p => p._1 + p._2))
+                                                  //> fibsZip: ()fpinscala.laziness.Stream[Int]
+  def fibsZipWithPlain(): Stream[Int] =
+    Stream(0, 1).
+      append(fibsZipWithPlain.tail.zipWithPlain(fibsZipWithPlain)(_ + _))
+                                                  //> fibsZipWithPlain: ()fpinscala.laziness.Stream[Int]
+                                                  
+  lazy val fibsZipWithLazy: Stream[Int] =
+    Stream(0, 1).
+      append(fibsZipWithLazy.zipWithLazy(fibsZipWithLazy.drop(1))(_ + _))
+                                                  //> fibsZipWithLazy: => fpinscala.laziness.Stream[Int]
+                                                  
+  fibsZipWithLazy.take(6).toList                  //> res41: List[Int] = List(0, 1, 1, 2, 3, 5)
 }

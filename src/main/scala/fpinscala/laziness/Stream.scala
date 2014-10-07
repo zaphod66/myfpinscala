@@ -53,6 +53,7 @@ sealed trait Stream[+A] {
   }
   
   def drop(n: Int): Stream[A] = {
+    @annotation.tailrec
     def go(s: Stream[A], n: Int): Stream[A] =
       if (n <= 0) s
       else s match {
@@ -62,6 +63,8 @@ sealed trait Stream[+A] {
     
     go(this,n)
   }
+  
+  def tail = drop(1)
   
   // exercise 5.3
   def takeWhile(p: A => Boolean): Stream[A] = this match {
@@ -105,7 +108,7 @@ sealed trait Stream[+A] {
   def filter(p: A => Boolean): Stream[A] =
     foldRight(empty[A])((a,z) => if (p(a)) cons(a,z) else z)
     
-  def append[B >: A](s: Stream[B]): Stream[B] =
+  def append[B >: A](s: => Stream[B]): Stream[B] =
     foldRight(s)((a,z) => cons(a,z))
   
   def flatMap[B](f: A => Stream[B]): Stream[B] =
@@ -140,6 +143,25 @@ sealed trait Stream[+A] {
       case _ => None
     }
   
+  def zipWithPlain[B, C](bs: Stream[B])(f: (A, B) => C): Stream[C] =
+    (for {
+      a <- headOption
+      b <- bs.headOption
+    } yield Stream.cons(f(a, b), tail.zipWithPlain(bs.tail)(f))).getOrElse(Empty)
+
+  // lazy zipWith by Runar
+  def zipWithLazy[B,C](s2: => Stream[B])(f: (A,B) => C): Stream[C] =
+    lazyUnfold(LazyPair(() => this, () => s2)) { p =>
+      p.a() match {
+        case Cons(h1, t1) => p.b() match {
+          case Cons(h2, t2) =>
+            Some(LazyPair(() => f(h1(), h2()), () => LazyPair(t1, t2)))
+          case _ => None
+        }
+        case _ => None
+      }
+  }
+    
   def zip[B](s: Stream[B]): Stream[(A,B)] = zipWith(s)((_,_))
   
   def zipWithAll[B,C](s: Stream[B])(f: (Option[A],Option[B]) => C): Stream[C] =
@@ -147,7 +169,7 @@ sealed trait Stream[+A] {
       case (Empty,Empty)             => None
       case (Cons(h,t),Empty)         => Some(f(Some(h()),Option.empty[B]) -> (t(), empty[B]))
       case (Empty,Cons(h,t))         => Some(f(Option.empty[A],Some(h())) -> (empty[A] ,t()))
-      case (Cons(h1,t1),Cons(h2,t2)) => Some(f(Some(h1()),Some(h2())) -> (t1(),t2()))
+      case (Cons(h1,t1),Cons(h2,t2)) => Some(f(Some(h1()),Some(h2()))     -> (t1(),t2()))
     }
   
   def zipAll[B](s: Stream[B]): Stream[(Option[A],Option[B])] = zipWithAll(s)((_,_))
@@ -184,6 +206,9 @@ sealed trait Stream[+A] {
 
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
+
+// for lazyUnfold by Runar
+case class LazyPair[A,B](a: () => A, b: () => B)
 
 object Stream {
   def cons[A](hd: => A, tl: => Stream[A]): Stream[A] = {
@@ -248,4 +273,11 @@ object Stream {
     unfold(a)(a => Some((a,a)))
     
   def onesViaUnfold: Stream[Int] = constantViaUnfold(1)
+  
+  // lazy unfold by Runar
+  def lazyUnfold[A, S](z: S)(f: S => Option[LazyPair[A, S]]): Stream[A] =
+    f(z) match {
+      case Some(p) => cons(p.a(), lazyUnfold(p.b())(f))
+      case None => empty
+    }
 }
