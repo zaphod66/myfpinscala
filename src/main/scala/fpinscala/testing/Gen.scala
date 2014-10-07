@@ -2,12 +2,65 @@ package fpinscala.testing
 
 import fpinscala.state._
 import fpinscala.state.RNG._
+import fpinscala.laziness.Stream
 
-trait Prop {
-  def check: Boolean
+import Prop._
+import Gen._
+
+object Prop {
+  type SuccessCount = Int
+  type TestCases = Int
+  type FailedCase = String
   
-  // exercise 8.3
-  def &&(p: Prop) = this.check && p.check
+  sealed trait Result {
+    def isFalsified: Boolean
+  }
+  case object Passed extends Result {
+    override def isFalsified = false
+  }
+  case class Falsified(failure: FailedCase, successes: SuccessCount) extends Result {
+    override def isFalsified = true
+  }
+  
+  def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop {
+    (n,rng) => randomStream(as)(rng).zip(Stream.from(0)).take(n).map {
+      case (a,i) => try {
+        if (f(a)) Passed else Falsified(a.toString, i)
+      } catch { case e: Exception => Falsified(buildMsg(a, e), i)}
+    }.find(_.isFalsified).getOrElse(Passed)
+  }
+  
+  def randomStream[A](g: Gen[A])(rng: RNG): Stream[A] =
+    Stream.unfold(rng)(r => Some(g.sample.run(r)))
+  
+  def buildMsg[A](s: A, e: Exception): String =
+    s"test case: $s\n" +
+    s"generated an exception: ${e.getMessage}\n" +
+    s"stack trace:\n${e.getStackTrace.mkString("\n")}"
+}
+
+case class Prop(run: (TestCases, RNG) => Result) {
+  // exercise 8.9
+  def &&(p: Prop): Prop = Prop {
+    (n,rng) => run(n,rng) match {
+      case Passed => p.run(n,rng)
+      case Falsified(m,i) => Falsified(m,i)
+    }
+  }
+  
+  def ||(p: Prop): Prop = Prop {
+    (n,rng) => run(n,rng) match {
+      case Passed => Passed
+      case Falsified(m,i) => p.tag(m).run(n,rng)
+    }
+  }
+  
+  private def tag(msg: String): Prop = Prop {
+    (n,rng) => run(n,rng) match {
+      case Falsified(m,i) => Falsified("(" + msg + "," + m + ")",i)
+      case Passed => Passed
+    }
+  }
 }
 
 case class Gen[A](sample: State[RNG,A]) {
