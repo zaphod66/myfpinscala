@@ -125,6 +125,11 @@ object Gen {
     
     Gen(State(RNG.double)) flatMap { d => if (d < thres) g1._1 else g2._1 }
   }
+  
+  // exercise 8.12
+  def listOf[A](g: Gen[A]): SGen[List[A]] = SGen {
+    n => listOfN(n,g)
+  }
 }
 
 case class SGen[A](forSize: Int => Gen[A]) {
