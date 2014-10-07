@@ -43,7 +43,7 @@ case class Prop(run: (TestCases, RNG) => Result) {
   // exercise 8.9
   def &&(p: Prop): Prop = Prop {
     (n,rng) => run(n,rng) match {
-      case Passed => p.run(n,rng)
+      case Passed => p.tag("right").run(n,rng)
       case Falsified(m,i) => Falsified(m,i)
     }
   }

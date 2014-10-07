@@ -28,20 +28,19 @@ object GenWS {
   val gen7 = Gen.union(gen2,gen6)                 //> gen7  : fpinscala.testing.Gen[String] = Gen(State(<function1>))
   gen7.sample.run(rng)                            //> res0: (String, fpinscala.state.RNG) = (Ha,SimpleRNG(1059025964525))
  
-  def f1(i: Int) = i >= 3                         //> f1: (i: Int)Boolean
-  def f2(i: Int) = i <= 7                         //> f2: (i: Int)Boolean
-  def f3(i: Int) = i % 2 == 0                     //> f3: (i: Int)Boolean
-  def f4(i: Int) = i % 2 == 1                     //> f4: (i: Int)Boolean
+  val prop1 = Prop.forAll(gen1){ _ >= 3 }         //> prop1  : fpinscala.testing.Prop = Prop(<function2>)
+  val prop2 = Prop.forAll(gen1){ _ <= 7 }         //> prop2  : fpinscala.testing.Prop = Prop(<function2>)
+  val prop3 = Prop.forAll(gen1){ _ % 2 == 0 }     //> prop3  : fpinscala.testing.Prop = Prop(<function2>)
+  val prop4 = Prop.forAll(gen1){ _ % 2 == 1 }     //> prop4  : fpinscala.testing.Prop = Prop(<function2>)
   
-  val prop1 = Prop.forAll(gen1)(f1)               //> prop1  : fpinscala.testing.Prop = Prop(<function2>)
-  val prop2 = Prop.forAll(gen1)(f2)               //> prop2  : fpinscala.testing.Prop = Prop(<function2>)
-  val prop3 = Prop.forAll(gen1)(f3)               //> prop3  : fpinscala.testing.Prop = Prop(<function2>)
-  val prop4 = prop1 && prop2                      //> prop4  : fpinscala.testing.Prop = Prop(<function2>)
-  val prop5 = prop1 && prop3                      //> prop5  : fpinscala.testing.Prop = Prop(<function2>)
-  val prop6 = prop1 || prop3                      //> prop6  : fpinscala.testing.Prop = Prop(<function2>)
-  val prop7 = prop3 || Prop.forAll(gen1)(f4)      //> prop7  : fpinscala.testing.Prop = Prop(<function2>)
-  prop4.run(100,rng)                              //> res1: fpinscala.testing.Prop.Result = Passed
-  prop5.run(100,rng)                              //> res2: fpinscala.testing.Prop.Result = Falsified(7,3)
-  prop6.run(100,rng)                              //> res3: fpinscala.testing.Prop.Result = Passed
-  prop7.run(100,rng)                              //> res4: fpinscala.testing.Prop.Result = Falsified((7,6),0)
+  val prop5 = prop1 && prop2                      //> prop5  : fpinscala.testing.Prop = Prop(<function2>)
+  val prop6 = prop1 && prop3                      //> prop6  : fpinscala.testing.Prop = Prop(<function2>)
+  val prop6_ = prop3 && prop1                     //> prop6_  : fpinscala.testing.Prop = Prop(<function2>)
+  val prop7 = prop1 || prop3                      //> prop7  : fpinscala.testing.Prop = Prop(<function2>)
+  val prop8 = prop3 || prop4                      //> prop8  : fpinscala.testing.Prop = Prop(<function2>)
+  prop5.run(100,rng)                              //> res1: fpinscala.testing.Prop.Result = Passed
+  prop6.run(100,rng)                              //> res2: fpinscala.testing.Prop.Result = Falsified((right,7),3)
+  prop6_.run(100,rng)                             //> res3: fpinscala.testing.Prop.Result = Falsified(7,3)
+  prop7.run(100,rng)                              //> res4: fpinscala.testing.Prop.Result = Passed
+  prop8.run(100,rng)                              //> res5: fpinscala.testing.Prop.Result = Falsified((7,6),0)
 }
