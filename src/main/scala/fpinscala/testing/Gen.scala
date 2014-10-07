@@ -51,4 +51,21 @@ object Gen {
     val l = List.fill(n)(g.sample)
     Gen(State.sequence(l))
   }
+  
+  // exercise 8.7
+  def union_[A](g1: Gen[A], g2: Gen[A]): Gen[A] = {
+    val b = boolean.sample
+    val c = b.flatMap(f => if (f) g1.sample else g2.sample)
+    Gen(c)
+  }
+
+  def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] = {
+    boolean flatMap { b => if (b) g1 else g2 }
+  }
+  
+  def weighted[A](g1: (Gen[A], Double), g2: (Gen[A], Double)): Gen[A] = {
+    val thres = g1._2.abs / (g1._2.abs + g2._2.abs)
+    
+    Gen(State(RNG.double)) flatMap { d => if (d < thres) g1._1 else g2._1 }
+  }
 }
