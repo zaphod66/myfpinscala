@@ -51,8 +51,8 @@ object GenWS {
   listOf(gen1).forSize(4).sample.run(rng)         //> res6: (List[Int], fpinscala.state.RNG) = (List(6, 4, 4, 7),SimpleRNG(149370
                                                   //| 390209998))
   Prop.run(prop5)                                 //> + Ok, passed 100 tests.
-  Prop.run(prop6)                                 //> ! Falsified after 3 passed tests:
-                                                  //| 7
+  Prop.run(prop6)                                 //> ! Falsified after 2 passed tests:
+                                                  //| 3
   Prop.run(prop7)                                 //> ! Falsified after 0 passed tests:
                                                   //| 7
   Prop.run(prop9)                                 //> ! Falsified after 1 passed tests:
@@ -69,8 +69,8 @@ object GenWS {
  
   val es: ExecutorService = Executors.newCachedThreadPool
                                                   //> es  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPoo
-                                                  //| lExecutor@3f8e347[Running, pool size = 0, active threads = 0, queued tasks 
-                                                  //| = 0, completed tasks = 0]
+                                                  //| lExecutor@4dc1dfa9[Running, pool size = 0, active threads = 0, queued tasks
+                                                  //|  = 0, completed tasks = 0]
   val p1 = forAll(Gen.unit(Par.unit(1))) { i =>
     Par.map(i)(_ + 1)(es).get == Par.unit(2)(es).get
   }                                               //> p1  : fpinscala.testing.Prop = Prop(<function3>)
@@ -83,4 +83,12 @@ object GenWS {
     Par.map(Par.unit(i))(_ + 1)(es).get == Par.unit(i + 1)(es).get
   }                                               //> p3  : fpinscala.testing.Prop = Prop(<function3>)
   run(p3)                                         //> + Ok, passed 100 tests.
+  
+  val p4 = forAllPar(Gen(State.int)) { i =>
+    val pa = Par.map(Par.unit(i))(_ + 1)
+    val pb = Par.unit(i + 1)
+    
+    equal(pa,pb)
+  }                                               //> p4  : fpinscala.testing.Prop = Prop(<function3>)
+  run(p4)                                         //> + Ok, passed 100 tests.
 }

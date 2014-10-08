@@ -1,11 +1,16 @@
 package fpinscala.testing
 
+import fpinscala.parallelism._
+import fpinscala.parallelism.Par.Par
+
 import fpinscala.state._
 import fpinscala.state.RNG._
 import fpinscala.laziness.Stream
 
 import Prop._
 import Gen._
+
+import java.util.concurrent.{ Executors, ExecutorService }
 
 object Prop {
   type SuccessCount = Int
@@ -70,6 +75,25 @@ object Prop {
   def check(p: => Boolean): Prop = Prop {
     (_,_,_) => if (p) Proved else Falsified("()", 0)
   }
+  
+  //////////////////////
+  // Par
+  
+  // lift equal to Par
+  def equal[A](p1: Par[A], p2: Par[A]): Par[Boolean] = Par.map2(p1, p2)(_ == _)  
+  
+  val S = weighted(
+    choose(1,4).map(Executors.newFixedThreadPool) -> .75,
+    Gen.unit(Executors.newCachedThreadPool) -> .25
+  )
+  
+  def forAllPar_[A](g: Gen[A])(f: A => Par[Boolean]): Prop = forAll(S.map2(g)((_,_))) { case (es,a) => f(a)(es).get }
+  def forAllPar[A](g: Gen[A])(f: A => Par[Boolean]): Prop = forAll(S ** g) { case (es,a) => f(a)(es).get }
+  
+   def checkPar_(p: Par[Boolean]): Prop = forAllPar(Gen.unit(()))(_ => p)
+   def checkPar(p: Par[Boolean]): Prop = Prop {
+     (_,_,_) => if (p(Executors.newCachedThreadPool).get) Proved else Falsified("()",0)
+   }
 }
 
 case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
@@ -98,6 +122,12 @@ case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
 }
 
 case class Gen[A](sample: State[RNG,A]) {
+  def map[B](f: A => B): Gen[B] =
+    Gen(sample.map(f))
+
+  def map2[B,C](g: Gen[B])(f: (A,B) => C): Gen[C] =
+    Gen(sample.map2(g.sample)(f))    
+
   // exercise 8.6
   def flatMap[B](f: A => Gen[B]): Gen[B] = {
     Gen(sample.flatMap(a => f(a).sample))
@@ -107,7 +137,14 @@ case class Gen[A](sample: State[RNG,A]) {
     size flatMap { i => Gen.listOfN(i,this) }
   
   // exercise 8.10
-  def unsized: SGen[A] = SGen(_ => this)  
+  def unsized: SGen[A] = SGen(_ => this)
+  
+  def **[B](g: Gen[B]): Gen[(A,B)] = this.map2(g)((_,_))
+//def **[B](g: Gen[B]): Gen[(A,B)] = (this map2 g)((_,_))
+}
+
+object ** {
+  def unapply[A,B](p: (A,B)) = Some(p)
 }
 
 object Gen {
