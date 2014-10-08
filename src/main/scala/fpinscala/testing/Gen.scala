@@ -68,7 +68,8 @@ case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
   // exercise 8.9
   def &&(p: Prop): Prop = Prop {
     (max,n,rng) => run(max,n,rng) match {
-      case Passed => p.tag("right side ->").run(max,n,rng)
+//    case Passed => p.tag("right side ->").run(max,n,rng)
+      case Passed => p.run(max,n,rng)
       case Falsified(m,i) => Falsified(m,i)
     }
   }

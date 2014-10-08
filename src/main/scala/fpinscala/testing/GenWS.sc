@@ -40,20 +40,20 @@ object GenWS {
   val prop8 = prop1 || prop3                      //> prop8  : fpinscala.testing.Prop = Prop(<function3>)
   val prop9 = prop3 || prop4                      //> prop9  : fpinscala.testing.Prop = Prop(<function3>)
   prop5.run(10,100,rng)                           //> res1: fpinscala.testing.Prop.Result = Passed
-  prop6.run(10,100,rng)                           //> res2: fpinscala.testing.Prop.Result = Falsified((right side ->,7),3)
+  prop6.run(10,100,rng)                           //> res2: fpinscala.testing.Prop.Result = Falsified(7,3)
   prop7.run(10,100,rng)                           //> res3: fpinscala.testing.Prop.Result = Falsified(7,3)
   prop8.run(10,100,rng)                           //> res4: fpinscala.testing.Prop.Result = Passed
   prop9.run(10,100,rng)                           //> res5: fpinscala.testing.Prop.Result = Falsified((7,6),0)
-  
+ 
   listOf(gen1).forSize(4).sample.run(rng)         //> res6: (List[Int], fpinscala.state.RNG) = (List(6, 4, 4, 7),SimpleRNG(149370
                                                   //| 390209998))
   Prop.run(prop5)                                 //> + Ok, passed 100 tests.
-  Prop.run(prop6)                                 //> ! Falsified after 0 passed tests:
-                                                  //| (right side ->,5)
-  Prop.run(prop7)                                 //> ! Falsified after 0 passed tests:
+  Prop.run(prop6)                                 //> ! Falsified after 1 passed tests:
                                                   //| 7
-  Prop.run(prop9)                                 //> ! Falsified after 6 passed tests:
-                                                  //| (3,4)
+  Prop.run(prop7)                                 //> ! Falsified after 0 passed tests:
+                                                  //| 5
+  Prop.run(prop9)                                 //> ! Falsified after 1 passed tests:
+                                                  //| (5,6)
                                               
   val smallInt = Gen.choose(-10,10)               //> smallInt  : fpinscala.testing.Gen[Int] = Gen(State(<function1>))
   listOf1(smallInt)                               //> res7: fpinscala.testing.SGen[List[Int]] = SGen(<function1>)
