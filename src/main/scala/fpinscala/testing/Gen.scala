@@ -11,6 +11,7 @@ object Prop {
   type SuccessCount = Int
   type TestCases = Int
   type FailedCase = String
+  type MaxSize = Int
   
   sealed trait Result {
     def isFalsified: Boolean
@@ -23,7 +24,7 @@ object Prop {
   }
   
   def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop {
-    (n,rng) => randomStream(as)(rng).zip(Stream.from(0)).take(n).map {
+    (max,n,rng) => randomStream(as)(rng).zip(Stream.from(0)).take(n).map {
       case (a,i) => try {
         if (f(a)) Passed else Falsified(a.toString, i)
       } catch { case e: Exception => Falsified(buildMsg(a, e), i)}
@@ -37,26 +38,50 @@ object Prop {
     s"test case: $s\n" +
     s"generated an exception: ${e.getMessage}\n" +
     s"stack trace:\n${e.getStackTrace.mkString("\n")}"
+    
+  def forAll[A](g: SGen[A])(f: A => Boolean): Prop =
+    forAll(g(_))(f)
+    
+  def forAll[A](g: Int => Gen[A])(f: A => Boolean): Prop = Prop {
+    (max,n,rng) =>
+      val casesPerSize = (n + (max - 1)) / max
+//    println(s"max = $max, n = $n, casesPerSize = $casesPerSize")
+      val props: Stream[Prop] = Stream.from(0).take((n min max) + 1).map(i => forAll(g(i))(f))
+      val prop: Prop = props.map(p => Prop {
+        (max,_,rng) => p.run(max,casesPerSize,rng)
+      }).toList.reduce(_ && _)
+      
+      prop.run(max,n,rng)
+    }
+  
+  def run(p: Prop,
+          maxSize: Int = 100,
+          testCases: Int = 100,
+          rng: RNG = RNG.SimpleRNG(System.currentTimeMillis)): Unit =
+    p.run(maxSize,testCases,rng) match {
+      case Falsified(m,i) => println(s"! Falsified after $i passed tests:\n$m")
+      case Passed         => println(s"+ Ok, passed $testCases tests.")
+    }
 }
 
-case class Prop(run: (TestCases, RNG) => Result) {
+case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
   // exercise 8.9
   def &&(p: Prop): Prop = Prop {
-    (n,rng) => run(n,rng) match {
-      case Passed => p.tag("right side ->").run(n,rng)
+    (max,n,rng) => run(max,n,rng) match {
+      case Passed => p.tag("right side ->").run(max,n,rng)
       case Falsified(m,i) => Falsified(m,i)
     }
   }
   
   def ||(p: Prop): Prop = Prop {
-    (n,rng) => run(n,rng) match {
+    (max,n,rng) => run(max,n,rng) match {
       case Passed => Passed
-      case Falsified(m,i) => p.tag(m).run(n,rng)
+      case Falsified(m,i) => p.tag(m).run(max,n,rng)
     }
   }
   
   private def tag(msg: String): Prop = Prop {
-    (n,rng) => run(n,rng) match {
+    (max,n,rng) => run(max,n,rng) match {
       case Falsified(m,i) => Falsified("(" + msg + "," + m + ")",i)
       case Passed => Passed
     }
@@ -105,6 +130,7 @@ object Gen {
   
   def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = {
     val l = List.fill(n)(g.sample)
+//  println(s"listOfN(): n = $n, l = $l, s = ${State.sequence(l)}")
     Gen(State.sequence(l))
   }
   
@@ -130,8 +156,16 @@ object Gen {
   def listOf[A](g: Gen[A]): SGen[List[A]] = SGen {
     n => listOfN(n,g)
   }
+  
+  // exercise 8.13
+  def listOf1[A](g: Gen[A]): SGen[List[A]] = SGen {
+    n => listOfN(n + 1, g)
+  }
 }
 
 case class SGen[A](forSize: Int => Gen[A]) {
-  def apply(n: Int): Gen[A] = forSize(n)
+  def apply(n: Int): Gen[A] = {
+  //println(s"SGen($n)")
+    forSize(n)
+  }
 }
