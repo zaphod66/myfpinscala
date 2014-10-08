@@ -6,13 +6,11 @@ import Prop._
 object GenApp extends App {
   println("Hello GenApp")
   
-  val smallInt = Gen.choose(-10,10)               //> smallInt  : fpinscala.testing.Gen[Int] = Gen(State(<function1>))
+  val smallInt = Gen.choose(-10,10)
   val maxProp  = forAll(listOf1(smallInt)) { ns =>
     val max = ns.max
     !ns.exists(_ > max)
-  }                                               //> maxProp  : fpinscala.testing.Prop = Prop(<function3>)
-  
-  run(maxProp)                                    //> + Ok, passed 100 tests.
+  }
   
   // exercise 8.14
   val sortProp1 = forAll(listOf(smallInt)) { l =>
@@ -38,8 +36,34 @@ object GenApp extends App {
     
     !l.exists(_ < mi)
   }
+
+  val sortPropB1 = forAll(listOf(smallInt)) { ns =>
+    val nss = ns.sorted
+
+    // We specify that every sorted list is either empty, has one element,
+    // or has no two consecutive elements `(a,b)` such that `a` is greater than `b`.
+    ( ns.isEmpty || nss.tail.isEmpty || !nss.zip(nss.tail).exists { case (a,b) => a > b } )
+  }
   
+  val sortPropB2 = forAll(listOf(smallInt)) { ns =>
+    val nss = ns.sorted
+
+    // Also, the sorted list should have all the elements of the input list,
+    !ns.exists(!nss.contains(_))
+  }
+
+  val sortPropB3 = forAll(listOf(smallInt)) { ns =>
+    val nss = ns.sorted
+
+    // and it should have no elements not in the input list.
+    !nss.exists(!ns.contains(_))
+  }
+  
+  /////////////////////////////
+  
+  run(maxProp)
   run(sortProp1)
   run(sortProp2)
   run(sortProp3 && sortProp4)
+  run(sortPropB1 && sortPropB2 && sortPropB3)
 }
