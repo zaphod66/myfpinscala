@@ -2,8 +2,11 @@ package fpinscala.testing
 
 import fpinscala.state._
 import fpinscala.state.RNG._
+import fpinscala.parallelism._
 import Gen._
 import Prop._
+
+import java.util.concurrent._
 
 object GenWS {
   println("Welcome ScalaCheck worksheet")         //> Welcome ScalaCheck worksheet
@@ -48,12 +51,12 @@ object GenWS {
   listOf(gen1).forSize(4).sample.run(rng)         //> res6: (List[Int], fpinscala.state.RNG) = (List(6, 4, 4, 7),SimpleRNG(149370
                                                   //| 390209998))
   Prop.run(prop5)                                 //> + Ok, passed 100 tests.
-  Prop.run(prop6)                                 //> ! Falsified after 1 passed tests:
+  Prop.run(prop6)                                 //> ! Falsified after 3 passed tests:
                                                   //| 7
   Prop.run(prop7)                                 //> ! Falsified after 0 passed tests:
-                                                  //| 5
+                                                  //| 7
   Prop.run(prop9)                                 //> ! Falsified after 1 passed tests:
-                                                  //| (5,6)
+                                                  //| (7,4)
                                               
   val smallInt = Gen.choose(-10,10)               //> smallInt  : fpinscala.testing.Gen[Int] = Gen(State(<function1>))
   listOf1(smallInt)                               //> res7: fpinscala.testing.SGen[List[Int]] = SGen(<function1>)
@@ -63,4 +66,21 @@ object GenWS {
   }                                               //> maxProp  : fpinscala.testing.Prop = Prop(<function3>)
   
   run(maxProp)                                    //> + Ok, passed 100 tests.
+ 
+  val es: ExecutorService = Executors.newCachedThreadPool
+                                                  //> es  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPoo
+                                                  //| lExecutor@3f8e347[Running, pool size = 0, active threads = 0, queued tasks 
+                                                  //| = 0, completed tasks = 0]
+  val p1 = forAll(Gen.unit(Par.unit(1))) { i =>
+    Par.map(i)(_ + 1)(es).get == Par.unit(2)(es).get
+  }                                               //> p1  : fpinscala.testing.Prop = Prop(<function3>)
+  run(p1)                                         //> + Ok, passed 100 tests.
+  val p2 = check(Par.map(Par.unit(1))(_ + 1)(es).get == Par.unit(2)(es).get)
+                                                  //> p2  : fpinscala.testing.Prop = Prop(<function3>)
+  run(p2)                                         //> + Ok, property is proved.
+  
+  val p3 = forAll(Gen(State.int)) { i =>
+    Par.map(Par.unit(i))(_ + 1)(es).get == Par.unit(i + 1)(es).get
+  }                                               //> p3  : fpinscala.testing.Prop = Prop(<function3>)
+  run(p3)                                         //> + Ok, passed 100 tests.
 }

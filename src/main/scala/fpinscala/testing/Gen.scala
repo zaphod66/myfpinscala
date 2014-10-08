@@ -19,6 +19,9 @@ object Prop {
   case object Passed extends Result {
     override def isFalsified = false
   }
+  case object Proved extends Result {
+    override def isFalsified = false
+  }
   case class Falsified(failure: FailedCase, successes: SuccessCount) extends Result {
     override def isFalsified = true
   }
@@ -45,7 +48,7 @@ object Prop {
   def forAll[A](g: Int => Gen[A])(f: A => Boolean): Prop = Prop {
     (max,n,rng) =>
       val casesPerSize = (n + (max - 1)) / max
-//    println(s"max = $max, n = $n, casesPerSize = $casesPerSize")
+//      println(s"max = $max, n = $n, casesPerSize = $casesPerSize")
       val props: Stream[Prop] = Stream.from(0).take((n min max) + 1).map(i => forAll(g(i))(f))
       val prop: Prop = props.map(p => Prop {
         (max,_,rng) => p.run(max,casesPerSize,rng)
@@ -61,7 +64,12 @@ object Prop {
     p.run(maxSize,testCases,rng) match {
       case Falsified(m,i) => println(s"! Falsified after $i passed tests:\n$m")
       case Passed         => println(s"+ Ok, passed $testCases tests.")
+      case Proved         => println(s"+ Ok, property is proved.")
     }
+  
+  def check(p: => Boolean): Prop = Prop {
+    (_,_,_) => if (p) Proved else Falsified("()", 0)
+  }
 }
 
 case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
@@ -70,21 +78,21 @@ case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
     (max,n,rng) => run(max,n,rng) match {
 //    case Passed => p.tag("right side ->").run(max,n,rng)
       case Passed => p.run(max,n,rng)
-      case Falsified(m,i) => Falsified(m,i)
+      case x => x
     }
   }
   
   def ||(p: Prop): Prop = Prop {
     (max,n,rng) => run(max,n,rng) match {
-      case Passed => Passed
       case Falsified(m,_) => p.tag(m).run(max,n,rng)
+      case x => x
     }
   }
   
   private def tag(msg: String): Prop = Prop {
     (max,n,rng) => run(max,n,rng) match {
       case Falsified(m,i) => Falsified("(" + msg + "," + m + ")",i)
-      case Passed => Passed
+      case x => x
     }
   }
 }
