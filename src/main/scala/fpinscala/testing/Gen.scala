@@ -76,7 +76,7 @@ case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
   def ||(p: Prop): Prop = Prop {
     (max,n,rng) => run(max,n,rng) match {
       case Passed => Passed
-      case Falsified(m,i) => p.tag(m).run(max,n,rng)
+      case Falsified(m,_) => p.tag(m).run(max,n,rng)
     }
   }
   
