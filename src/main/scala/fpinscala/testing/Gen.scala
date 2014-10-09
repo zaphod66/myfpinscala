@@ -94,6 +94,7 @@ object Prop {
    def checkPar(p: Par[Boolean]): Prop = Prop {
      (_,_,_) => if (p(Executors.newCachedThreadPool).get) Proved else Falsified("()",0)
    }
+   
 }
 
 case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
@@ -141,10 +142,10 @@ case class Gen[A](sample: State[RNG,A]) {
   
   def **[B](g: Gen[B]): Gen[(A,B)] = this.map2(g)((_,_))
 //def **[B](g: Gen[B]): Gen[(A,B)] = (this map2 g)((_,_))
-}
-
-object ** {
-  def unapply[A,B](p: (A,B)) = Some(p)
+  
+  object ** {
+    def unapply[A,B](p: (A,B)) = Some(p)
+  }
 }
 
 object Gen {
@@ -207,6 +208,16 @@ object Gen {
   def listOf1[A](g: Gen[A]): SGen[List[A]] = SGen {
     n => listOfN(n + 1, g)
   }
+
+  /////////////////
+  // Par
+  
+  val pint = choose(0, 10) map { Par.unit(_) }
+ 
+  // exercise 8.16
+  val pint2 = choose(-1000,1000).listOfN(choose(0,20)).map(l =>
+    l.foldLeft(Par.unit(0))((p,i) =>
+      Par.fork(Par.map2(p, Par.unit(i))(_ + _))))
 }
 
 case class SGen[A](forSize: Int => Gen[A]) {

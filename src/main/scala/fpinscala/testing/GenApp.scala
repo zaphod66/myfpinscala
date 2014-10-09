@@ -114,8 +114,10 @@ object GenApp extends App {
     equal(pa,pb)    
   }
 
-  val pint = Gen.choose(0,100) map { Par.unit(_) }
   val p7 = forAllPar(pint) { p => equal(p,Par.map(p)(y => y)) } //  map(y)(x => x) == y  - can only be expressed for some type of y
+  
+  // exercise 8.17 fork(x) = x
+  val p8 = forAllPar(pint2) { p => equal(Par.fork(p), p) } // fork(x) == x
   
   ///
   
@@ -127,4 +129,5 @@ object GenApp extends App {
   run(p5)
   run(p6)
   run(p7)
+  run(p8)
 }

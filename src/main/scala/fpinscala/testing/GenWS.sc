@@ -51,11 +51,11 @@ object GenWS {
   listOf(gen1).forSize(4).sample.run(rng)         //> res6: (List[Int], fpinscala.state.RNG) = (List(6, 4, 4, 7),SimpleRNG(149370
                                                   //| 390209998))
   Prop.run(prop5)                                 //> + Ok, passed 100 tests.
-  Prop.run(prop6)                                 //> ! Falsified after 2 passed tests:
+  Prop.run(prop6)                                 //> ! Falsified after 0 passed tests:
                                                   //| 3
-  Prop.run(prop7)                                 //> ! Falsified after 0 passed tests:
+  Prop.run(prop7)                                 //> ! Falsified after 1 passed tests:
                                                   //| 7
-  Prop.run(prop9)                                 //> ! Falsified after 1 passed tests:
+  Prop.run(prop9)                                 //> ! Falsified after 0 passed tests:
                                                   //| (7,4)
                                               
   val smallInt = Gen.choose(-10,10)               //> smallInt  : fpinscala.testing.Gen[Int] = Gen(State(<function1>))
@@ -69,7 +69,7 @@ object GenWS {
  
   val es: ExecutorService = Executors.newCachedThreadPool
                                                   //> es  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPoo
-                                                  //| lExecutor@4dc1dfa9[Running, pool size = 0, active threads = 0, queued tasks
+                                                  //| lExecutor@3cbd9256[Running, pool size = 0, active threads = 0, queued tasks
                                                   //|  = 0, completed tasks = 0]
   val p1 = forAll(Gen.unit(Par.unit(1))) { i =>
     Par.map(i)(_ + 1)(es).get == Par.unit(2)(es).get
@@ -91,4 +91,7 @@ object GenWS {
     equal(pa,pb)
   }                                               //> p4  : fpinscala.testing.Prop = Prop(<function3>)
   run(p4)                                         //> + Ok, passed 100 tests.
+  
+  val p = pint2.sample.run(rng)                   //> p  : (java.util.concurrent.ExecutorService => java.util.concurrent.Future[I
+                                                  //| nt], fpinscala.state.RNG) = (<function1>,SimpleRNG(172623842896256))
 }
