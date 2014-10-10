@@ -117,17 +117,39 @@ object GenApp extends App {
   val p7 = forAllPar(pint) { p => equal(p,Par.map(p)(y => y)) } //  map(y)(x => x) == y  - can only be expressed for some type of y
   
   // exercise 8.17 fork(x) = x
-  val p8 = forAllPar(pint2) { p => equal(Par.fork(p), p) } // fork(x) == x
+  val p8 = forAllPar(pint2)(p => equal(Par.fork(p), p))// tag "fork" // fork(x) == x
   
   ///
   
-  run(p1)                                         //> + Ok, passed 100 tests.
-  run(p2)                                         //> + Ok, passed 100 tests.  
-  run(p2_2)
-  run(p3)                                         //> + Ok, property is proved.
-  run(p4)
-  run(p5)
-  run(p6)
-  run(p7)
-  run(p8)
+//  run(p1)                                         //> + Ok, passed 100 tests.
+//  run(p2)                                         //> + Ok, passed 100 tests.  
+//  run(p2_2)
+//  run(p3)                                         //> + Ok, property is proved.
+//  run(p4)
+//  run(p5)
+//  run(p6)
+//  run(p7)
+//  run(p8)
+
+  ////////////////////////////
+  // exercise 8.20
+  
+  // Lists
+  
+  // take - drop
+  val pl1 = forAll(Gen.listOf(Gen.choose(0, 100))) { l =>
+    val s = l.size
+    val lt = l.take(s / 2)
+    val ld = l.drop(s / 2)
+    l == lt ++ ld }
+  
+  // filter - forAll
+  val pl2 = forAll(Gen.listOf(Gen.choose(0,100))) { l =>
+    true }
+  
+  ///
+  
+  // Lists
+  println("Lists")
+  run(pl1)
 }
