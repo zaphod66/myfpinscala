@@ -58,6 +58,9 @@ trait Parsers[ParseError,Parser[+_]] { self =>
   
   def slice[A](p: Parser[A]): Parser[String]
   
+  def label[A](msg: String)(p: Parser[A]): Parser[A]
+  def scope[A](msg: String)(p: Parser[A]): Parser[A]
+  
   // exercise 9.7
   def product[A,B](p1: Parser[A], p2: => Parser[B]): Parser[(A,B)] =
     for {
@@ -77,6 +80,41 @@ trait Parsers[ParseError,Parser[+_]] { self =>
     c <- listOfN(n,char('a'))
   } yield n.toString + c
   
+  // exercise 9.9 (JSON Parser) Books solution
+  /** Parser which consumes zero or more whitespace characters. */
+  def whitespace: Parser[String] = "\\s*".r
+
+  /** Parser which consumes 1 or more digits. */
+  def digits: Parser[String] = "\\d+".r
+  
+  /** Sequences two parsers, ignoring the result of the first.
+    * We wrap the ignored half in slice, since we don't care about its result. */  
+  def skipL[B](p1: Parser[Any], p2: Parser[B]): Parser[B] =
+    map2(slice(p1),p2)((_,b) => b)
+
+  /** Sequences two parsers, ignoring the result of the second.
+    * We wrap the ignored half in slice, since we don't care about its result. */    
+  def skipR[A](p1: Parser[A], p2: Parser[Any]): Parser[A] =
+    map2(p1,slice(p2))((b,_) => b)
+  
+  def attempt[A](p: Parser[A]): Parser[A]
+  
+  /** Wraps `p` in start/stop delimiters. */
+  def surround[A](start: Parser[Any], stop: Parser[Any])(p: => Parser[A]) =
+    start *> p <* stop
+    
+  /** Attempts `p` and strips trailing whitespace, usually used for the tokens of a grammar. */
+  def token[A](p: Parser[A]): Parser[A] =
+    attempt(p) <* whitespace
+
+  /** A parser that succeeds when given empty input. */
+  def eof: Parser[String] =
+    regex("\\z".r).label("unexpected trailing characters")
+
+  /** The root of the grammar, expects no further input following `p`. */
+  def root[A](p: Parser[A]): Parser[A] =
+    p <* eof
+    
   case class ParserOps[A](p1: Parser[A]) {
     def |[B >: A](p2: Parser[B]): Parser[B] = self.or(p1, p2)
     def or[B >: A](p2: Parser[B]): Parser[B] = self.or(p1, p2)
@@ -87,10 +125,15 @@ trait Parsers[ParseError,Parser[+_]] { self =>
     
     def flatMap[B](f: A => Parser[B]): Parser[B] = self.flatMap(p1)(f)
     
+    def label(msg: String) = self.label(msg)(p1)
     def slice = self.slice(p1)
     
     def **[B](p2: Parser[B]) = self.product(p1, p2)
     def product[B](p2: Parser[B]) = self.product(p1, p2)
+    
+    def *>[B](p2: Parser[B]) = self.skipL(p1, p2)
+    def <*(p2: Parser[Any])  = self.skipR(p1, p2)
+    
   }
   
   object Laws {
