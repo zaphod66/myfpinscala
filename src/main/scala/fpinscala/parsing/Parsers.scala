@@ -5,6 +5,7 @@ import fpinscala.testing.Prop._
 
 import scala.language.higherKinds
 import scala.language.implicitConversions
+import scala.util.matching.Regex
 
 trait Parsers[ParseError,Parser[+_]] { self =>
   def run[A](p: Parser[A])(input: String): Either[ParseError,A]
@@ -43,19 +44,38 @@ trait Parsers[ParseError,Parser[+_]] { self =>
   def many1[A](p: Parser[A]): Parser[List[A]] =
     map2(p, many(p))(_ :: _)
 
-  def map[A,B](p: Parser[A])(f: A => B): Parser[B]
-  
+  // exercise 9.8
+  def map[A,B](p: Parser[A])(f: A => B): Parser[B] =
+    flatMap(p)(f andThen succeed)
+
+  // exercise 9.7
   def map2[A,B,C](p1: Parser[A], p2: => Parser[B])(f: (A,B) => C): Parser[C] = {
     val prod = product(p1,p2)
     prod map { f.tupled }
   }
   
+  def flatMap[A,B](p: Parser[A])(f: A => Parser[B]): Parser[B]
+  
   def slice[A](p: Parser[A]): Parser[String]
   
-  def product[A,B](p1: Parser[A], p2: => Parser[B]): Parser[(A,B)]
+  // exercise 9.7
+  def product[A,B](p1: Parser[A], p2: => Parser[B]): Parser[(A,B)] =
+    for {
+      a <- p1
+      b <- p2
+    } yield (a,b)
   
   // zero or more 'a' followed by one or more 'b'
-  val aabb = char('a').many.slice.map(_.size) **  char('b').many1.slice.map(_.size)
+  val aabb = char('a').many.slice.map(_.size) ** char('b').many1.slice.map(_.size)
+
+  // exercise 9.6
+  implicit def regex(r: Regex): Parser[String]
+
+  val digitA = for {
+    digit <- "[0-9]+".r
+    n = digit.toInt
+    c <- listOfN(n,char('a'))
+  } yield n.toString + c
   
   case class ParserOps[A](p1: Parser[A]) {
     def |[B >: A](p2: Parser[B]): Parser[B] = self.or(p1, p2)
@@ -64,6 +84,8 @@ trait Parsers[ParseError,Parser[+_]] { self =>
     def map[B](f: A => B): Parser[B] = self.map(p1)(f)
     def many = self.many(p1)
     def many1 = self.many1(p1)
+    
+    def flatMap[B](f: A => Parser[B]): Parser[B] = self.flatMap(p1)(f)
     
     def slice = self.slice(p1)
     
