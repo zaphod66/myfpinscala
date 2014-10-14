@@ -9,7 +9,7 @@ import scala.language.implicitConversions
 import java.util.regex._
 import scala.util.matching.Regex
 
-trait Parsers[ParseError,Parser[+_]] { self =>
+trait Parsers[Parser[+_]] { self =>
   def run[A](p: Parser[A])(input: String): Either[ParseError,A]
   
   implicit def string(s: String): Parser[String]
@@ -60,7 +60,13 @@ trait Parsers[ParseError,Parser[+_]] { self =>
   
   def slice[A](p: Parser[A]): Parser[String]
   
+  /** if 'p' fails, incorporate 'msg' in ErrorMessage */
   def label[A](msg: String)(p: Parser[A]): Parser[A]
+
+  /** if 'p' fails, adds a 'msg' to the ErrorStack, i.e.
+   *  if run(p)(s) is Left(e1), then run(scope(msg) (p)) is Left(e2),
+   *  where e2.stack.head will be msg and e2.stack.tail will be e1.
+   */
   def scope[A](msg: String)(p: Parser[A]): Parser[A]
   
   // exercise 9.7
@@ -121,6 +127,7 @@ trait Parsers[ParseError,Parser[+_]] { self =>
   def double: Parser[Double] =
     doubleString map (_.toDouble) label "double literal"
 
+  /** Delays committing to p until after it succeeds */
   def attempt[A](p: Parser[A]): Parser[A]
   
   /** Wraps `p` in start/stop delimiters. */
@@ -200,4 +207,18 @@ trait Parsers[ParseError,Parser[+_]] { self =>
       equal(pl, pr)(in)
     }
   }
+}
+
+case class Location(input: String, offset: Int = 0) {
+  lazy val line = input.slice(0, offset + 1).count(_ == '\n') + 1
+  lazy val col  = input.slice(0, offset + 1).lastIndexOf('\n') match {
+    case -1        => offset + 1
+    case lineStart => offset - lineStart
+  }
+  
+  def toError(s: String): ParseError =
+    ParseError(List((this,s)))
+}
+
+case class ParseError(stack: List[(Location,String)] = List()) {
 }
