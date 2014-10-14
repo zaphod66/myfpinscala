@@ -5,13 +5,15 @@ import fpinscala.testing.Prop._
 
 import scala.language.higherKinds
 import scala.language.implicitConversions
+
+import java.util.regex._
 import scala.util.matching.Regex
 
 trait Parsers[ParseError,Parser[+_]] { self =>
   def run[A](p: Parser[A])(input: String): Either[ParseError,A]
   
   implicit def string(s: String): Parser[String]
-  implicit def operators[A](p: Parser[A]) = ParserOps(p)
+  implicit def operators[A](p: Parser[A]) = ParserOps[A](p)
   implicit def asStringParser[A](a: A)(implicit f: A => Parser[String]): ParserOps[String] = ParserOps(f(a))
   
   def char(c: Char): Parser[Char] =
@@ -96,7 +98,29 @@ trait Parsers[ParseError,Parser[+_]] { self =>
     * We wrap the ignored half in slice, since we don't care about its result. */    
   def skipR[A](p1: Parser[A], p2: Parser[Any]): Parser[A] =
     map2(p1,slice(p2))((b,_) => b)
-  
+
+  /** Parser which consumes reluctantly until it encounters the given string. */
+  def thru(s: String): Parser[String] = (".*?"+Pattern.quote(s)).r
+
+  /** Unescaped string literals, like "foo" or "bar". */
+  def quoted: Parser[String] = string("\"") *> thru("\"").map(_.dropRight(1))
+
+  /** Unescaped or escaped string literals, like "An \n important \"Quotation\"" or "bar". */
+  def escapedQuoted: Parser[String] =
+    // rather annoying to write, left as an exercise
+    // we'll just use quoted (unescaped literals) for now
+    token(quoted label "string literal")
+
+  /** C/Java style floating point literals, e.g .1, -1.0, 1e9, 1E-23, etc.
+   * Result is left as a string to keep full precision
+   */
+  def doubleString: Parser[String] =
+    token("[-+]?([0-9]*\\.)?[0-9]+([eE][-+]?[0-9]+)?".r)
+
+  /** Floating point literals, converted to a `Double`. */
+  def double: Parser[Double] =
+    doubleString map (_.toDouble) label "double literal"
+
   def attempt[A](p: Parser[A]): Parser[A]
   
   /** Wraps `p` in start/stop delimiters. */
@@ -107,6 +131,14 @@ trait Parsers[ParseError,Parser[+_]] { self =>
   def token[A](p: Parser[A]): Parser[A] =
     attempt(p) <* whitespace
 
+  /** Zero ore more repetitions of 'p1', separated by 'p2', whose results are ignored */
+  def sep[A](p1: Parser[A], p2: Parser[Any]): Parser[List[A]] =
+    sep1(p1,p2) or succeed(List())
+  
+  /** One ore more repetitions of 'p1', separated by 'p2', whose results are ignored */
+  def sep1[A](p1: Parser[A], p2: Parser[Any]): Parser[List[A]] =
+    map2(p1, many(p2 *> p1))(_ :: _)
+    
   /** A parser that succeeds when given empty input. */
   def eof: Parser[String] =
     regex("\\z".r).label("unexpected trailing characters")
@@ -133,7 +165,14 @@ trait Parsers[ParseError,Parser[+_]] { self =>
     
     def *>[B](p2: Parser[B]) = self.skipL(p1, p2)
     def <*(p2: Parser[Any])  = self.skipR(p1, p2)
+
+    def scope(msg: String) = self.scope(msg)(p1)
     
+    def token = self.token(p1)
+    def sep(s: Parser[Any]) = self.sep(p1,s)
+    def sep1(s: Parser[Any]) = self.sep1(p1,s)
+    
+    def as[B](b: B) = self.map(self.slice(p1))(_ => b)
   }
   
   object Laws {
