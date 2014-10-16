@@ -16,6 +16,10 @@ trait Parsers[Parser[+_]] { self =>
   implicit def operators[A](p: Parser[A]) = ParserOps[A](p)
   implicit def asStringParser[A](a: A)(implicit f: A => Parser[String]): ParserOps[String] = ParserOps(f(a))
   
+//  implicit def string(s: String): Parser[String]
+//  implicit def operators[A](p: Parser[A]) = ParserOps[A](p)
+//  implicit def asStringParser[A](a: A)(implicit f: A => Parser[String]): ParserOps[String] = ParserOps(f(a))
+  
   def char(c: Char): Parser[Char] =
     string(c.toString) map (_.charAt(0))
   
@@ -221,4 +225,8 @@ case class Location(input: String, offset: Int = 0) {
 }
 
 case class ParseError(stack: List[(Location,String)] = List()) {
+}
+
+object Parsers {
+  
 }
