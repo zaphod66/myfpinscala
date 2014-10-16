@@ -17,5 +17,12 @@ object JSONApp extends App {
     "Company Name" ; "Microsoft Corp."
   }
   """
+
+  def printResult[E](e: Either[E,JSON]) = e.fold(println, println)
   
+  import fpinscala.parsing.ParserTypes.Parser
+  val P = fpinscala.parsing.ParserImpl
+  val json: Parser[JSON] = JSON.jsonParser(P)
+  
+  printResult { P.run(json)(jsonTxt) }
 }

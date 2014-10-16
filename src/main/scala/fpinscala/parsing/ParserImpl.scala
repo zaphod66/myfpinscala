@@ -15,8 +15,6 @@ object ParserTypes {
 }
 
 object ParserImpl extends Parsers[Parser] {
-  type Parser[A] = String => Result[A]
-  
   def run[A](p: Parser[A])(input: String): Either[ParseError,A] = ???
 
   // exercise 9.13
