@@ -225,6 +225,12 @@ case class Location(input: String, offset: Int = 0) {
   
   def advanceBy(n: Int): Location =
     copy(offset = offset + n)
+
+  def currentLine: String =
+    if (input.length > 1) input.lines.drop(line-1).next
+    else ""
+
+  def columnCaret = (" " * (col-1)) + "^"
 }
 
 case class ParseError(stack: List[(Location,String)] = List()) {
@@ -239,8 +245,26 @@ case class ParseError(stack: List[(Location,String)] = List()) {
   
   def latest: Option[(Location,String)] =
     stack.lastOption
+    
+  override def toString = {
+    val reorgStack = reorganizeStack(stack)
+    val ctx = reorgStack.lastOption.map("\n\n" + _._1.currentLine).getOrElse("") +
+              reorgStack.lastOption.map("\n"   + _._1.columnCaret).getOrElse("")
+    
+    reorgStack.map { case (loc,msg) => loc.line.toString + "." + loc.col + " " + msg }.mkString("\n") + ctx
+  }
+  
+//    "\n#################\n" + {
+//    if (stack.isEmpty) "no error"
+//    else {
+//      val ev = stack.groupBy(_._1).mapValues(_.map(_._2).mkString("; "))
+//      val vl = ev.toList.sortBy(_._1.offset).mkString("\n++ ++ ++\n")
+//      
+//      stack.toString + "\n------\n" + vl.toString
+//    }} + "\n#################\n"
+    
+  def reorganizeStack(s: List[(Location,String)]): List[(Location,String)] =
+    s.groupBy(_._1).
+      mapValues(_.map(_._2).mkString("; ")).
+      toList.sortBy(_._1.offset)
 }
-
-//object Parsers {
-//  
-//}
