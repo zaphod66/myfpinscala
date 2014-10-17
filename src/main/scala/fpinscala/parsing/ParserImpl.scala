@@ -35,7 +35,10 @@ object ParserTypes {
 }
 
 object ParserImpl extends Parsers[Parser] {
-  def run[A](p: Parser[A])(input: String): Either[ParseError,A] = ???
+  def run[A](p: Parser[A])(input: String): Either[ParseError,A] = p(input) match {
+    case Success(a,_) => Right(a)
+    case Failure(e,_) => Left(e)
+  }
 
   // exercise 9.13
   implicit def string(s: String): Parser[String] =

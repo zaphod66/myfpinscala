@@ -12,7 +12,7 @@ object JSONApp extends App {
   }
   """
   
-  val malformedJSON1 = """
+  val malformedJson1 = """
   {
     "Company Name" ; "Microsoft Corp."
   }
@@ -25,4 +25,5 @@ object JSONApp extends App {
   val json: Parser[JSON] = JSON.jsonParser(P)
   
   printResult { P.run(json)(jsonTxt) }
+  printResult { P.run(json)(malformedJson1) }
 }
