@@ -101,12 +101,12 @@ trait Parsers[Parser[+_]] { self =>
   
   /** Sequences two parsers, ignoring the result of the first.
     * We wrap the ignored half in slice, since we don't care about its result. */  
-  def skipL[B](p1: Parser[Any], p2: Parser[B]): Parser[B] =
+  def skipL[B](p1: Parser[Any], p2: => Parser[B]): Parser[B] =
     map2(slice(p1),p2)((_,b) => b)
 
   /** Sequences two parsers, ignoring the result of the second.
     * We wrap the ignored half in slice, since we don't care about its result. */    
-  def skipR[A](p1: Parser[A], p2: Parser[Any]): Parser[A] =
+  def skipR[A](p1: Parser[A], p2: => Parser[Any]): Parser[A] =
     map2(p1,slice(p2))((b,_) => b)
 
   /** Parser which consumes reluctantly until it encounters the given string. */
@@ -174,8 +174,8 @@ trait Parsers[Parser[+_]] { self =>
     def **[B](p2: Parser[B]) = self.product(p1, p2)
     def product[B](p2: Parser[B]) = self.product(p1, p2)
     
-    def *>[B](p2: Parser[B]) = self.skipL(p1, p2)
-    def <*(p2: Parser[Any])  = self.skipR(p1, p2)
+    def *>[B](p2: => Parser[B]) = self.skipL(p1, p2)
+    def <*(p2: => Parser[Any])  = self.skipR(p1, p2)
 
     def scope(msg: String) = self.scope(msg)(p1)
     
@@ -222,11 +222,25 @@ case class Location(input: String, offset: Int = 0) {
   
   def toError(s: String): ParseError =
     ParseError(List((this,s)))
+  
+  def advanceBy(n: Int): Location =
+    copy(offset = offset + n)
 }
 
 case class ParseError(stack: List[(Location,String)] = List()) {
+  def push(loc: Location, msg: String): ParseError =
+    copy(stack = (loc,msg) :: stack)
+    
+  def label[A](s: String): ParseError =
+    ParseError(latestLoc.map((_,s)).toList)
+    
+  def latestLoc: Option[Location] =
+    latest map (_._1)
+  
+  def latest: Option[(Location,String)] =
+    stack.lastOption
 }
 
-object Parsers {
-  
-}
+//object Parsers {
+//  
+//}
