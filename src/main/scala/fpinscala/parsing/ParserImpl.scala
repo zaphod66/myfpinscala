@@ -109,4 +109,21 @@ object ParserImpl extends Parsers[Parser] {
       case Success(a,n) => f(a)(s.advanceBy(n)).addCommit(n != 0).advanceSuccess(n)
       case Failure(e,c) => Failure(e,c)
     }
+  
+  /* We provide an overridden version of `many` that accumulates
+   * the list of results using a monolithic loop. This avoids
+   * stack overflow errors for most grammars.
+   */
+  override def many[A](p: Parser[A]): Parser[List[A]] =
+    s => {
+      val buf = new collection.mutable.ListBuffer[A]
+      def go(p: Parser[A], offset: Int): Result[List[A]] = {
+        p(s.advanceBy(offset)) match {
+          case Success(a,n) => buf += a; go(p, offset+n)
+          case f@Failure(e,true) => f
+          case Failure(e,_) => Success(buf.toList,offset)
+        }
+      }
+      go(p, 0)
+    }
 }

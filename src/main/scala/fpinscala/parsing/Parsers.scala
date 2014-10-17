@@ -251,17 +251,8 @@ case class ParseError(stack: List[(Location,String)] = List()) {
     val ctx = reorgStack.lastOption.map("\n\n" + _._1.currentLine).getOrElse("") +
               reorgStack.lastOption.map("\n"   + _._1.columnCaret).getOrElse("")
     
-    reorgStack.map { case (loc,msg) => loc.line.toString + "." + loc.col + " " + msg }.mkString("\n") + ctx
+    reorgStack.map { case (loc,msg) => loc.line + "." + loc.col + " " + msg }.mkString("\n") + ctx
   }
-  
-//    "\n#################\n" + {
-//    if (stack.isEmpty) "no error"
-//    else {
-//      val ev = stack.groupBy(_._1).mapValues(_.map(_._2).mkString("; "))
-//      val vl = ev.toList.sortBy(_._1.offset).mkString("\n++ ++ ++\n")
-//      
-//      stack.toString + "\n------\n" + vl.toString
-//    }} + "\n#################\n"
     
   def reorganizeStack(s: List[(Location,String)]): List[(Location,String)] =
     s.groupBy(_._1).
