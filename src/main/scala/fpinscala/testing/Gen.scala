@@ -10,6 +10,7 @@ import fpinscala.laziness.Stream
 import Prop._
 import Gen._
 
+import scala.language.implicitConversions
 import java.util.concurrent.{ Executors, ExecutorService }
 
 object Prop {
@@ -162,7 +163,24 @@ object Gen {
     
   def boolean: Gen[Boolean] =
     Gen(State.int.map(i => i % 2 == 0))
- 
+    
+  // exercise 10.4
+  def uniform: Gen[Double] = Gen(State(RNG.double))
+
+  def stringN(n: Int): Gen[String] =
+    listOfN(n, choose(0,127)).map(_.map(_.toChar).mkString)
+    
+  def string = SGen(stringN)
+
+  implicit def unsized[A](g: Gen[A]): SGen[A] = SGen(_ => g)
+  
+  def option[A](gen: Gen[A]): Gen[Option[A]] = {
+    for {
+      b <- boolean
+      a <- gen
+    } yield (if (b) Some(a) else None)
+  }
+  
   def listOfN_[A](n: Int, g: Gen[A]): Gen[List[A]] = {
     @annotation.tailrec
     def go(l: Int, acc: List[Gen[A]]): List[Gen[A]] = l match {

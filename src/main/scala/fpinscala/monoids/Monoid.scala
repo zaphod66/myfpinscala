@@ -6,7 +6,7 @@ trait Monoid[A] {
 }
 
 object Monoid {
-  val stringMonoid = new Monoid[String] {
+  def stringMonoid = new Monoid[String] {
     def op(s1: String, s2: String) = s1 + s2
     def zero = ""
   }
@@ -28,10 +28,10 @@ object Monoid {
   }
   
   def booleanOr = new Monoid[Boolean] {
-    def op(b1: Boolean, b2: Boolean) = b1 || b1
-    def zero = false
+    def op(b1: Boolean, b2: Boolean) = b1 || b2
+    val zero = false
   }
-  
+
   def booleanAnd = new Monoid[Boolean] {
     def op(b1: Boolean, b2: Boolean) = b1 && b2
     def zero = true
@@ -56,5 +56,23 @@ object Monoid {
   def endoMonoid[A] = new Monoid[A => A] {
     def op(f1: A => A, f2: A => A) = f1 andThen f2
     def zero = (a: A) => a
+  }
+  
+  import fpinscala.testing._
+  import Prop._
+  
+  // exercise 10.4
+  def monoidLaws[A](m: Monoid[A], gen: Gen[A]): Prop = {
+    def p1 = forAll(
+      for {
+        x <- gen
+        y <- gen
+        z <- gen
+      } yield (x,y,z)
+    ) { p => m.op(p._1, m.op(p._2, p._3)) == m.op(m.op(p._1, p._2), p._3) }
+    
+    def p2 = forAll(gen) { p => m.op(p, m.zero) == p && m.op(m.zero, p) == p}
+    
+    p1 && p2
   }
 }
