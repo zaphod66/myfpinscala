@@ -116,7 +116,21 @@ object Monoid {
   }
   
   def parFoldMap[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] =
-    flatMap(parMap(v)(f)) { bs =>
-      foldMapV(bs, par(m))(b => unit(b))
+    flatMap(parMap(v)(f)) { bs => foldMapV(bs, par(m))(b => unit(b)) }
+  
+  // exercise 10.9
+  def ordered(ints: IndexedSeq[Int]): Boolean = {
+    type Track = Option[(Int,Boolean)]
+    
+    val m = new Monoid[Track] {
+      def zero = None
+      def op(o1: Track, o2: Track) = (o1,o2) match {
+        case (x, None) => x
+        case (None, x) => x
+        case (Some((i1,b1)), Some((i2,b2))) => Some((i2, (i1 <= i2) && b1 && b2))
+      }
     }
+    
+    foldMap(ints.toList,m)(i => Some(i, true)).map(_._2).getOrElse(true)
+  }
 }

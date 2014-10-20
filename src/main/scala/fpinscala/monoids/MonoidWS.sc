@@ -6,11 +6,6 @@ import fpinscala.parallelism.Par._
 
 object MonoidWS {
   println("Welcome to the Scala worksheet")       //> Welcome to the Scala worksheet
-  
-  val pool = Executors.newCachedThreadPool()      //> pool  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPo
-                                                  //| olExecutor@6beb8639[Running, pool size = 0, active threads = 0, queued tasks
-                                                  //|  = 0, completed tasks = 0]
-  
   val f: (Int,Int) => Int = (x,y) => x + y        //> f  : (Int, Int) => Int = <function2>
   f(2,3)                                          //> res0: Int = 5
 
@@ -30,7 +25,12 @@ object MonoidWS {
   val p1 = parFoldMap(l1.toIndexedSeq, intAddition)(i => i)
                                                   //> p1  : java.util.concurrent.ExecutorService => java.util.concurrent.Future[In
                                                   //| t] = <function1>
+  val pool = Executors.newCachedThreadPool()      //> pool  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPo
+                                                  //| olExecutor@7844f218[Running, pool size = 0, active threads = 0, queued tasks
+                                                  //|  = 0, completed tasks = 0]
   p1(pool).get                                    //> res8: Int = 55
-  
   pool.shutdown
+ 
+  ordered(l1.toIndexedSeq)                        //> res9: Boolean = true
+  ordered((10 :: l1).toIndexedSeq)                //> res10: Boolean = false
 }
