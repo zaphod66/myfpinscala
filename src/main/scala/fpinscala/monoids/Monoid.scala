@@ -75,4 +75,35 @@ object Monoid {
     
     p1 && p2
   }
+  
+  def concatenate[A](as: List[A], m: Monoid[A]) =
+    as.foldLeft(m.zero)(m.op)
+
+  // exercise 10.5
+  def foldMap[A,B](as: List[A], m: Monoid[B])(f: A => B): B = {
+    as.foldLeft(m.zero)((b, a) => m.op(b, f(a)))
+  }
+  
+  // exercise 10.6 (Books solution)(this was beyond my intellectual capacity) 
+  // The function type `(A, B) => B`, when curried, is `A => (B => B)`.
+  // And of course, `B => B` is a monoid for any `B` (via function composition).
+  def foldRightViaFoldMap[A, B](as: List[A])(z: B)(f: (A, B) => B): B =
+    foldMap(as, endoMonoid[B])(f.curried)(z)
+    
+  // Folding to the left is the same except we flip the arguments to
+  // the function `f` to put the `B` on the correct side.
+  // Then we have to also "flip" the monoid so that it operates from left to right.
+  def foldLeftViaFoldMap[A, B](as: List[A])(z: B)(f: (B, A) => B): B =
+    foldMap(as, dual(endoMonoid[B]))(a => b => f(b, a))(z)
+
+  // exercise 10.7
+  def foldMapV[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): B =
+    if (v.length == 0)
+      m.zero
+    else if (v.length == 1)
+      f(v(0))
+    else {
+      val (l,r) = v.splitAt(v.length / 2)
+      m.op(foldMapV(l,m)(f),foldMapV(r,m)(f))
+    }
 }
