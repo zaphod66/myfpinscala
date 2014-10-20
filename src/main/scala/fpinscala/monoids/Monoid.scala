@@ -1,5 +1,7 @@
 package fpinscala.monoids
 
+import fpinscala.parallelism.Par._
+
 trait Monoid[A] {
   def op(a1: A, a2: A): A
   def zero: A
@@ -105,5 +107,16 @@ object Monoid {
     else {
       val (l,r) = v.splitAt(v.length / 2)
       m.op(foldMapV(l,m)(f),foldMapV(r,m)(f))
+    }
+  
+  // exercise 10.8
+  def par[A](m: Monoid[A]): Monoid[Par[A]] = new Monoid[Par[A]]{
+    def zero = unit(m.zero)
+    def op(a1: Par[A], a2: Par[A]): Par[A] = map2(a1,a2)(m.op)
+  }
+  
+  def parFoldMap[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] =
+    flatMap(parMap(v)(f)) { bs =>
+      foldMapV(bs, par(m))(b => unit(b))
     }
 }
