@@ -26,7 +26,7 @@ object MonoidWS {
                                                   //> p1  : java.util.concurrent.ExecutorService => java.util.concurrent.Future[In
                                                   //| t] = <function1>
   val pool = Executors.newCachedThreadPool()      //> pool  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPo
-                                                  //| olExecutor@3bcd288e[Running, pool size = 0, active threads = 0, queued tasks
+                                                  //| olExecutor@16fb17e5[Running, pool size = 0, active threads = 0, queued tasks
                                                   //|  = 0, completed tasks = 0]
   p1(pool).get                                    //> res8: Int = 55
   pool.shutdown
@@ -45,4 +45,15 @@ object MonoidWS {
   TreeFoldable.foldMap(t2)(i => i)(intAddition)   //> res13: Int = 15
   TreeFoldable.toList(t1)                         //> res14: List[Int] = List(3, 2, 1)
   TreeFoldable.toList(t2)                         //> res15: List[Int] = List(4, 5, 3, 2, 1)
+  
+  val M: Monoid[Map[String, Map[String, Int]]] =
+    mapMergeMonoid(mapMergeMonoid(intAddition))   //> M  : fpinscala.monoids.Monoid[Map[String,Map[String,Int]]] = fpinscala.mono
+                                                  //| ids.Monoid$$anon$14@23610f1f
+  val m1 = Map("o1" -> Map("i1" -> 1, "i2" -> 2)) //> m1  : scala.collection.immutable.Map[String,scala.collection.immutable.Map[
+                                                  //| String,Int]] = Map(o1 -> Map(i1 -> 1, i2 -> 2))
+  val m2 = Map("o1" -> Map("i3" -> 3), "o2" -> Map("i1" -> 1))
+                                                  //> m2  : scala.collection.immutable.Map[String,scala.collection.immutable.Map[
+                                                  //| String,Int]] = Map(o1 -> Map(i3 -> 3), o2 -> Map(i1 -> 1))
+  M.op(m1,m2)                                     //> res16: Map[String,Map[String,Int]] = Map(o1 -> Map(i1 -> 1, i2 -> 2, i3 -> 
+                                                  //| 3), o2 -> Map(i1 -> 1))
 }
