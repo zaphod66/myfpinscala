@@ -180,6 +180,9 @@ trait Foldable[F[_]] {
   def foldMap[A,B](as: F[A])(f: A => B)(mb: Monoid[B]): B
   def concatenate[A](as: F[A])(m: Monoid[A]): A =
     foldLeft(as)(m.zero)(m.op)
+    
+  def toList[A](as: F[A]): List[A] =
+    foldRight(as)(List[A]())(_ :: _)
 }
 
 // exercise 10.12
@@ -190,6 +193,8 @@ object ListFoldable extends Foldable[List] {
     as.foldLeft(z)(f)
   def foldMap[A, B](as: List[A])(f: A => B)(mb: Monoid[B]): B =
     as.foldLeft(mb.zero)((b,a) => mb.op(b, f(a)))
+    
+  override def toList[A](as: List[A]) = as
 }
 
 object IndexedSeqFoldable extends Foldable[IndexedSeq] {
@@ -210,4 +215,44 @@ object StreamFoldable extends Foldable[Stream] {
     as.foldRight(z)(f)
   def foldMap[A, B](as: Stream[A])(f: A => B)(mb: Monoid[B]): B =
     as.foldRight(mb.zero)((a,b) => mb.op(f(a), b))
+}
+
+// exercise 10.13
+sealed trait Tree[+A]
+case class Leaf[A](value: A) extends Tree[A]
+case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
+
+object TreeFoldable extends Foldable[Tree] {
+  import Monoid._
+  
+  def foldLeft[A, B](t: Tree[A])(z: B)(f: (B, A) => B): B = t match {
+    case Leaf(a) => f(z,a)
+    case Branch(l,r) => foldLeft(l)(foldLeft(r)(z)(f))(f)
+  }
+
+  def foldRight[A, B](t: Tree[A])(z: B)(f: (A, B) => B): B =
+    foldMap(t)(f.curried)(endoMonoid[B])(z)
+
+  def foldMap[A, B](t: Tree[A])(f: A => B)(mb: Monoid[B]): B = t match {
+    case Leaf(a) => f(a)
+    case Branch(l,r) => mb.op(foldMap(l)(f)(mb), foldMap(r)(f)(mb))
+  }
+}
+
+// exercise 10.14
+object OptionFoldable extends Foldable[Option] {
+  def foldLeft[A, B](o: Option[A])(z: B)(f: (B, A) => B): B = o match {
+    case None    => z
+    case Some(a) => f(z,a)
+  }
+  
+  def foldRight[A, B](o: Option[A])(z: B)(f: (A, B) => B): B = o match {
+    case None    => z
+    case Some(a) => f(a,z)
+  }
+  
+  def foldMap[A, B](o: Option[A])(f: A => B)(mb: Monoid[B]): B = o match {
+    case None    => mb.zero
+    case Some(a) => f(a)
+  }
 }
