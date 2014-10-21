@@ -26,7 +26,7 @@ object MonoidWS {
                                                   //> p1  : java.util.concurrent.ExecutorService => java.util.concurrent.Future[In
                                                   //| t] = <function1>
   val pool = Executors.newCachedThreadPool()      //> pool  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPo
-                                                  //| olExecutor@1858c80c[Running, pool size = 0, active threads = 0, queued tasks
+                                                  //| olExecutor@3bcd288e[Running, pool size = 0, active threads = 0, queued tasks
                                                   //|  = 0, completed tasks = 0]
   p1(pool).get                                    //> res8: Int = 55
   pool.shutdown
@@ -35,4 +35,14 @@ object MonoidWS {
   ordered((10 :: l1).toIndexedSeq)                //> res10: Boolean = false
   
   count("Jana Mona Lara Lisa Lina")               //> res11: Int = 5
+  
+  val t1 = Branch(Branch(Leaf(1),Leaf(2)),Leaf(3))//> t1  : fpinscala.monoids.Branch[Int] = Branch(Branch(Leaf(1),Leaf(2)),Leaf(3)
+                                                  //| )
+  val t2 = Branch(Branch(Leaf(1),Leaf(2)),Branch(Leaf(3),Branch(Leaf(5),Leaf(4))))
+                                                  //> t2  : fpinscala.monoids.Branch[Int] = Branch(Branch(Leaf(1),Leaf(2)),Branch(
+                                                  //| Leaf(3),Branch(Leaf(5),Leaf(4))))
+  TreeFoldable.foldMap(t1)(i => i)(intAddition)   //> res12: Int = 6
+  TreeFoldable.foldMap(t2)(i => i)(intAddition)   //> res13: Int = 15
+  TreeFoldable.toList(t1)                         //> res14: List[Int] = List(3, 2, 1)
+  TreeFoldable.toList(t2)                         //> res15: List[Int] = List(4, 5, 3, 2, 1)
 }
