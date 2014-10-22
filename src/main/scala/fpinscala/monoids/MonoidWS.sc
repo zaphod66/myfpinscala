@@ -26,7 +26,7 @@ object MonoidWS {
                                                   //> p1  : java.util.concurrent.ExecutorService => java.util.concurrent.Future[In
                                                   //| t] = <function1>
   val pool = Executors.newCachedThreadPool()      //> pool  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPo
-                                                  //| olExecutor@16fb17e5[Running, pool size = 0, active threads = 0, queued tasks
+                                                  //| olExecutor@23d4616f[Running, pool size = 0, active threads = 0, queued tasks
                                                   //|  = 0, completed tasks = 0]
   p1(pool).get                                    //> res8: Int = 55
   pool.shutdown
@@ -48,12 +48,20 @@ object MonoidWS {
   
   val M: Monoid[Map[String, Map[String, Int]]] =
     mapMergeMonoid(mapMergeMonoid(intAddition))   //> M  : fpinscala.monoids.Monoid[Map[String,Map[String,Int]]] = fpinscala.mono
-                                                  //| ids.Monoid$$anon$14@23610f1f
+                                                  //| ids.Monoid$$anon$14@625b99ed
   val m1 = Map("o1" -> Map("i1" -> 1, "i2" -> 2)) //> m1  : scala.collection.immutable.Map[String,scala.collection.immutable.Map[
                                                   //| String,Int]] = Map(o1 -> Map(i1 -> 1, i2 -> 2))
-  val m2 = Map("o1" -> Map("i3" -> 3), "o2" -> Map("i1" -> 1))
+  val m2 = Map("o1" -> Map("i2" -> 3), "o2" -> Map("i1" -> 1))
                                                   //> m2  : scala.collection.immutable.Map[String,scala.collection.immutable.Map[
-                                                  //| String,Int]] = Map(o1 -> Map(i3 -> 3), o2 -> Map(i1 -> 1))
-  M.op(m1,m2)                                     //> res16: Map[String,Map[String,Int]] = Map(o1 -> Map(i1 -> 1, i2 -> 2, i3 -> 
-                                                  //| 3), o2 -> Map(i1 -> 1))
+                                                  //| String,Int]] = Map(o1 -> Map(i2 -> 3), o2 -> Map(i1 -> 1))
+  M.op(m1,m2)                                     //> res16: Map[String,Map[String,Int]] = Map(o1 -> Map(i1 -> 1, i2 -> 5), o2 ->
+                                                  //|  Map(i1 -> 1))
+  val i1 = ("est" :: l2).toIndexedSeq             //> i1  : scala.collection.immutable.IndexedSeq[String] = Vector(est, lorem, ip
+                                                  //| sum, est)
+  val v1 = i1.map((s: String) => Map(s -> 1))     //> v1  : scala.collection.immutable.IndexedSeq[scala.collection.immutable.Map[
+                                                  //| String,Int]] = Vector(Map(est -> 1), Map(lorem -> 1), Map(ipsum -> 1), Map(
+                                                  //| est -> 1))
+  foldMapV(i1,mapMergeMonoid[String,Int](intAddition))(s => Map(s -> 1))
+                                                  //> res17: Map[String,Int] = Map(est -> 2, lorem -> 1, ipsum -> 1)
+  bag(i1)                                         //> res18: Map[String,Int] = Map(est -> 2, lorem -> 1, ipsum -> 1)
 }

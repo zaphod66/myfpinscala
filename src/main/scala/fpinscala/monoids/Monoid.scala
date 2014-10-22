@@ -198,6 +198,9 @@ object Monoid {
         a => mb.op(f1(a), f2(a))
     }
 
+  // exercise 10.18
+  def bag[A](as: IndexedSeq[A]): Map[A,Int] =
+    foldMapV(as,mapMergeMonoid[A,Int](intAddition))((a: A) => Map(a -> 1))
 }
 
 trait Foldable[F[_]] {
