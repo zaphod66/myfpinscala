@@ -26,7 +26,7 @@ object MonoidWS {
                                                   //> p1  : java.util.concurrent.ExecutorService => java.util.concurrent.Future[In
                                                   //| t] = <function1>
   val pool = Executors.newCachedThreadPool()      //> pool  : java.util.concurrent.ExecutorService = java.util.concurrent.ThreadPo
-                                                  //| olExecutor@23d4616f[Running, pool size = 0, active threads = 0, queued tasks
+                                                  //| olExecutor@4083633f[Running, pool size = 0, active threads = 0, queued tasks
                                                   //|  = 0, completed tasks = 0]
   p1(pool).get                                    //> res8: Int = 55
   pool.shutdown
@@ -48,7 +48,7 @@ object MonoidWS {
   
   val M: Monoid[Map[String, Map[String, Int]]] =
     mapMergeMonoid(mapMergeMonoid(intAddition))   //> M  : fpinscala.monoids.Monoid[Map[String,Map[String,Int]]] = fpinscala.mono
-                                                  //| ids.Monoid$$anon$14@625b99ed
+                                                  //| ids.Monoid$$anon$14@6a3d899a
   val m1 = Map("o1" -> Map("i1" -> 1, "i2" -> 2)) //> m1  : scala.collection.immutable.Map[String,scala.collection.immutable.Map[
                                                   //| String,Int]] = Map(o1 -> Map(i1 -> 1, i2 -> 2))
   val m2 = Map("o1" -> Map("i2" -> 3), "o2" -> Map("i1" -> 1))
@@ -64,4 +64,9 @@ object MonoidWS {
   foldMapV(i1,mapMergeMonoid[String,Int](intAddition))(s => Map(s -> 1))
                                                   //> res17: Map[String,Int] = Map(est -> 2, lorem -> 1, ipsum -> 1)
   bag(i1)                                         //> res18: Map[String,Int] = Map(est -> 2, lorem -> 1, ipsum -> 1)
+  
+  val pm = productMonoid(intAddition,intAddition) //> pm  : fpinscala.monoids.Monoid[(Int, Int)] = fpinscala.monoids.Monoid$$anon
+                                                  //| $13@106f26bb
+  val a1 = foldMap(l1,pm)(i => (i,1))             //> a1  : (Int, Int) = (55,10)
+  a1._1 / a1._2.toDouble                          //> res19: Double = 5.5
 }
