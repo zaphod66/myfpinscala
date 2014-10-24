@@ -25,8 +25,8 @@ trait Monad[F[_]] extends Functor[F] {
   
   def map[A,B](fa: F[A])(f: A => B): F[B] =
     flatMap(fa)(a => unit(f(a)))
-  def map2[A,B,C](fa: F[A], fb: F[B])(f: (A,B) => C): F[C] =
-    flatMap(fa)(a => map(fb)(b => f(a,b)))
+  def map2[A,B,C](ma: F[A], mb: F[B])(f: (A,B) => C): F[C] =
+    flatMap(ma)(a => map(mb)(b => f(a, b)))
     
   // exercise 11.3
   def sequence[A](lma: List[F[A]]): F[List[A]] =
@@ -34,6 +34,46 @@ trait Monad[F[_]] extends Functor[F] {
     
   def traverse[A,B](la: List[A])(f: A => F[B]): F[List[B]] =
     la.foldRight(unit(List[B]()))((a,acc) => map2(f(a),acc)(_ :: _))
+    
+  // exercise 11.4
+  def replicateM[A](n: Int, ma: F[A]): F[List[A]] =
+  {
+    @annotation.tailrec
+    def go(i: Int, acc: F[List[A]]): F[List[A]] = {
+      if (i <= 0) acc
+      else go(i - 1, map2(ma,acc)(_::_))
+    }
+    
+    go(n, unit(List[A]()))
+  }
+  
+  // exercise 11.6
+  def filterM[A](ms: List[A])(f: A => F[Boolean]): F[List[A]] = {
+    ms.foldRight(unit(List[A]())) {
+      (a,acc) => {
+        def g(b: Boolean) = if (b) map2(unit(a),acc)(_ :: _) else acc
+        flatMap(f(a))(g)
+      }
+    }
+  }
+  
+  def filterM_[A](ms: List[A])(f: A => F[Boolean]): F[List[A]] = {
+    ms.foldRight(unit(List[A]())) {
+      (a,acc) => compose(f, (b: Boolean) => if (b) map2(unit(a),acc)(_::_) else acc)(a)
+    }
+  }
+
+  // exercise 11.7
+  def compose[A,B,C](f: A => F[B], g: B => F[C]): A => F[C] =
+    a => flatMap(f(a))(g)
+    
+  // exercise 11.8
+  def flatMapViaCompose[A,B](ma: F[A])(f: A => F[B]): F[B] =
+    compose((_:Unit) => ma, f)(())  
+
+  // exercise 11.12
+  def join[A](mma: F[F[A]]): F[A] =
+    flatMap(mma)(ma => ma)
 }
 
 object Functor{
