@@ -114,4 +114,14 @@ object Monad {
     def unit[A](a: => A) = List(a)
     def flatMap[A,B](la: List[A])(f: A => List[B]) = la flatMap f
   }
+  
+  val idMonad = new Monad[Id] {
+    def unit[A](a: => A) = Id(a)
+    def flatMap[A,B](ia: Id[A])(f: A => Id[B]) = ia flatMap f
+  }
+}
+
+case class Id[A](value: A) {
+  def flatMap[B](f: A => Id[B]): Id[B] = f(value)
+  def map[B](f: A => B): Id[B] = Id(f(value))
 }
