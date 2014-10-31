@@ -91,6 +91,8 @@ object Functor{
   }
 }
 
+case class Reader[R,A](run: R => A)
+
 object Monad {
   val genMonad = new Monad[Gen] {
     def unit[A](a: => A) = Gen.unit(a)
@@ -154,6 +156,17 @@ object Monad {
       n  <- getState
       _  <- setState(n + 1)
     } yield (n,a) :: xs).run(0)._1.reverse
+    
+  // exercise 11.20
+  def readerMonad[R] = new Monad[({type f[x] = Reader[R,x]})#f] {
+    def unit[A](a: => A): Reader[R,A] = Reader(r => a)
+    def flatMap[A,B](st: Reader[R,A])(f: A => Reader[R,B]): Reader[R,B] = Reader(r => {
+      val a = st.run(r)
+      f(a).run(r)
+    })
+  }
+
+  def ask[R]: Reader[R,R] = Reader(r => r)
 }
 
 case class Id[A](value: A) {
