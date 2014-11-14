@@ -39,13 +39,6 @@ object MonadApp extends App {
     _  <- setState(s + 1)
   } yield s
 
-  val t1 = sm2.run(0)
-  val t2 = sm2.run(t1._2)
-  
- 
-  println("t1" + t1)
-  println("t2" + t2)
-  
   val tree1 = Branch(Leaf("one"),
                      Branch(Leaf("two"),
                             Leaf("three")))
@@ -63,6 +56,8 @@ object MonadApp extends App {
   println(tree2._1)
   println(tree3.run(1)._1)
 
+  println("=========")
+  
   val tree2_ = number(tree1_)(1)
   val tree3_ = numberSM(tree1_)
   
