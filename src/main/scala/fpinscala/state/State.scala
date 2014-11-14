@@ -162,6 +162,7 @@ case class State[S,+A](run: S => (A,S)) {
     for {
       a <- this
       b <- sb
+//    _ = println("f(" + a + ", " + b + ") = " + f(a,b))
     } yield(f(a,b))
   
   def flatMap[B](f: A => State[S,B]): State[S,B] = State(s => {
