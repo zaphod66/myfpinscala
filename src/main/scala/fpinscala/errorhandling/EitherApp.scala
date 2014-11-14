@@ -16,10 +16,8 @@ object EitherApp extends App {
   def mkPerson(name: String, age: Int): Either[String,Person] =
     mkName(name).map2(mkAge(age))((n,a) => Person(n.value,a.value))
   
-  override def main(args: Array[String]): Unit = {
-    println(mkPerson("Hans", 42))
-    println(mkPerson("",42))
-    println(mkPerson("Old", 121))
-    println(mkPerson("",121))
-  }
+  println(mkPerson("Hans", 42))
+  println(mkPerson("",42))
+  println(mkPerson("Old", 121))
+  println(mkPerson("",121))
 }
