@@ -7,12 +7,12 @@ import Monad._
 object MonadWS {
   println("Welcome to the Scala worksheet")       //> Welcome to the Scala worksheet
 
-  val lm = listMonad                              //> lm  : fpinscala.monads.Monad[List] = fpinscala.monads.Monad$$anon$5@2ed4e99c
+  val lm = listMonad                              //> lm  : fpinscala.monads.Monad[List] = fpinscala.monads.Monad$$anon$5@458ce651
                                                   //| 
   val om = optionMonad                            //> om  : fpinscala.monads.Monad[Option]{def unit[A](a: => A): Some[A]} = fpinsc
-                                                  //| ala.monads.Monad$$anon$3@1c3518c9
+                                                  //| ala.monads.Monad$$anon$3@2564f383
   val im = idMonad                                //> im  : fpinscala.monads.Monad[fpinscala.monads.Id] = fpinscala.monads.Monad$$
-                                                  //| anon$6@61ee4296
+                                                  //| anon$6@6af30a3
 
   val l0 = List(1,2)                              //> l0  : List[Int] = List(1, 2)
   val l1 = lm.replicateM(1,l0)                    //> l1  : List[List[Int]] = List(List(1), List(2))
@@ -49,9 +49,9 @@ object MonadWS {
   val rng = SimpleRNG(42)                         //> rng  : fpinscala.state.RNG.SimpleRNG = SimpleRNG(42)
 
   val sm = new StateMonads[RNG].monad             //> sm  : fpinscala.monads.Monad[[A]fpinscala.state.State[fpinscala.state.RNG,A]
-                                                  //| ] = fpinscala.monads.Monad$StateMonads$$anon$9@529b9e76
+                                                  //| ] = fpinscala.monads.Monad$StateMonads$$anon$9@45f96cf3
   val sm2 = stateMonad[RNG]                       //> sm2  : fpinscala.monads.Monad[[A]fpinscala.state.State[fpinscala.state.RNG,A
-                                                  //| ]] = fpinscala.monads.Monad$$anon$7@66c07f58
+                                                  //| ]] = fpinscala.monads.Monad$$anon$7@7a5fe968
   
   val rs = for {
     s <- sm2.unit(0)
@@ -75,15 +75,15 @@ object MonadWS {
   zipWithIndex(l2)                                //> res15: List[(Int, List[Int])] = List((0,List(1, 1)), (1,List(1, 2)), (2,Lis
                                                   //| t(2, 1)), (3,List(2, 2)))
   val rm = readerMonad[Int]                       //> rm  : fpinscala.monads.Monad[[x]fpinscala.monads.Reader[Int,x]] = fpinscala
-                                                  //| .monads.Monad$$anon$10@67acfedb
+                                                  //| .monads.Monad$$anon$10@23c29a26
   
   val rm1 = rm.unit(1)                            //> rm1  : fpinscala.monads.Reader[Int,Int] = Reader(<function1>)
   rm1.run(2)                                      //> res16: Int = 1
-  val rm2 = rm.flatMap(rm1)(_ => rm.unit(2))      //> rm2  : fpinscala.monads.Reader[Int,Int] = Reader(<function1>)
-  rm2.run(1)                                      //> res17: Int = 2
+  val rm2 = rm.replicateM(3,rm1)                  //> rm2  : fpinscala.monads.Reader[Int,List[Int]] = Reader(<function1>)
+  rm2.run(2)                                      //> res17: List[Int] = List(1, 1, 1)
   
   val ism = stateMonad[Int]                       //> ism  : fpinscala.monads.Monad[[A]fpinscala.state.State[Int,A]] = fpinscala.
-                                                  //| monads.Monad$$anon$7@12cab783
+                                                  //| monads.Monad$$anon$7@23493578
   val is1 = ism.flatMap(ism.unit("s"))(s => ism.unit(s+s))
                                                   //> is1  : fpinscala.state.State[Int,String] = State(<function1>)
   val is2 = for {
@@ -98,7 +98,7 @@ object MonadWS {
   ism.replicateM(3,is2).run(0)                    //> res20: (List[String], Int) = (List(s0, s1, s2),3)
   
   val fsm = stateMonad[(Int,Int)]                 //> fsm  : fpinscala.monads.Monad[[A]fpinscala.state.State[(Int, Int),A]] = fpi
-                                                  //| nscala.monads.Monad$$anon$7@efd025d
+                                                  //| nscala.monads.Monad$$anon$7@90f25dc
   val fs1 = for {
     s <- fsm.unit("fib ")
     st <- getState
