@@ -59,8 +59,24 @@ trait Applicative[F[_]] extends Functor[F] {
     apply(apply(apply(apply(unit(f.curried))(fa))(fb))(fc))(fd)
 }
 
-object Applicative {
+sealed trait Validation[+E,+A]
 
+case class Failure[E](head: E, tail: Vector[E] = Vector()) extends Validation[E,Nothing]
+case class Success[A](a: A) extends Validation[Nothing,A]
+
+object Applicative {
+  // exercise 12.6
+  def validationApplicative[E]: Applicative[({type f[x] = Validation[E,x]})#f] =
+    new Applicative[({type f[x] = Validation[E,x]})#f] {
+      def unit[A](a: => A) = Success(a)
+      override def map2[A,B,C](fa: Validation[E,A], fb: Validation[E,B])(f: (A,B) => C): Validation[E,C] =
+        (fa,fb) match {
+          case (Success(a), Success(b))         => Success(f(a,b))
+          case (Success(_), Failure(h,t))       => Failure(h,t)
+          case (Failure(h,t), Success(_))       => Failure(h,t)
+          case (Failure(h1,t1), Failure(h2,t2)) => Failure(h1, t1 ++ Vector(h2) ++ t2)
+        }
+    }
 }
 
 // a minimal implementation of Monad must implement 'unit'
