@@ -57,6 +57,33 @@ trait Applicative[F[_]] extends Functor[F] {
                       fc: F[C],
                       fd: F[D])(f: (A,B,C,D) => E): F[E] =
     apply(apply(apply(apply(unit(f.curried))(fa))(fb))(fc))(fd)
+  
+  // exercise 12.8
+  def product[G[_]](G: Applicative[G]): Applicative[({type f[x] = (F[x],G[x])})#f] = {
+    val self = this
+    new Applicative[({type f[x] = (F[x],G[x])})#f] {
+      def unit[A](a: => A) = (self.unit(a),G.unit(a))
+      override def apply[A,B](f: (F[A => B],G[A => B]))(p: (F[A],G[A])) =
+        (self.apply(f._1)(p._1), G.apply(f._2)(p._2))
+    }
+  }
+  
+  // exercise 12.9 (book)
+  def compose[G[_]](G: Applicative[G]): Applicative[({type f[x] = F[G[x]]})#f] = {
+    val self = this
+    new Applicative[({type f[x] = F[G[x]]})#f] {
+      def unit[A](a: => A) = self.unit(G.unit(a))
+      override def map2[A,B,C](fga: F[G[A]], fgb: F[G[B]])(f: (A,B) => C): F[G[C]] =
+        self.map2(fga, fgb)(G.map2(_,_)(f))
+    }
+  }
+  
+  // exercise 12.12 (book)
+  def sequenceMap[K,V](ofa: Map[K,F[V]]): F[Map[K,V]] =
+    ofa.foldLeft(this.unit(Map[K,V]())) {
+      case (acc, (k, fv)) => apply(map(acc)(m =>
+        (n: Map[K,V]) => m ++ n))(map(fv)((v: V) => Map(k -> v)))
+    }
 }
 
 sealed trait Validation[+E,+A]
@@ -65,6 +92,12 @@ case class Failure[E](head: E, tail: Vector[E] = Vector()) extends Validation[E,
 case class Success[A](a: A) extends Validation[Nothing,A]
 
 object Applicative {
+  val streamApplicative = new Applicative[Stream] {
+    def unit[A](a: => A): Stream[A] = Stream.continually(a)
+    override def map2[A,B,C](a: Stream[A], b: Stream[B])(f: (A,B) => C): Stream[C] =
+      a zip b map f.tupled
+  }
+  
   // exercise 12.6
   def validationApplicative[E]: Applicative[({type f[x] = Validation[E,x]})#f] =
     new Applicative[({type f[x] = Validation[E,x]})#f] {
