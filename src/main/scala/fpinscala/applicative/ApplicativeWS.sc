@@ -7,7 +7,7 @@ import java.util.Date
 
 object ApplicativeWS {
   val e = eitherMonad[Int]                        //> e  : fpinscala.applicative.Monad[[x]scala.util.Either[Int,x]] = fpinscala.ap
-                                                  //| plicative.Monad$$anon$1@7fe9262d
+                                                  //| plicative.Monad$$anon$1@2da75e1b
   val u1 = e.unit(1)                              //> u1  : scala.util.Either[Int,Int] = Right(1)
   val u2 = e.flatMap(u1)(i => e.unit(i + 1))      //> u2  : scala.util.Either[Int,Int] = Right(2)
  
@@ -31,8 +31,8 @@ object ApplicativeWS {
     v.map2(validName(name),validDate(date))(Form(_,_))
   }                                               //> validForm: (name: String, date: String)fpinscala.applicative.Validation[Stri
                                                   //| ng,fpinscala.applicative.ApplicativeWS.Form]
-  validForm("Jana","1976-11-07")                  //> res0: fpinscala.applicative.Validation[String,fpinscala.applicative.Applicat
-                                                  //| iveWS.Form] = Success(Form(Jana,Sun Nov 07 00:00:00 CET 1976))
+  validForm("Jana","1973-11-07")                  //> res0: fpinscala.applicative.Validation[String,fpinscala.applicative.Applicat
+                                                  //| iveWS.Form] = Success(Form(Jana,Wed Nov 07 00:00:00 CET 1973))
   validForm("","--")                              //> res1: fpinscala.applicative.Validation[String,fpinscala.applicative.Applicat
                                                   //| iveWS.Form] = Failure(<name> cannot be empty,Vector(date must be of format y
                                                   //| yyy-MM-dd))

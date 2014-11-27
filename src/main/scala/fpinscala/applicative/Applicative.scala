@@ -142,10 +142,10 @@ object Monad {
 }
 
 trait Traverse[F[_]] {
-  def traverse[G[_]:Applicative,A,B](fa: F[A])(f: A => G[B]): G[F[B]] =
+  def traverse[G[_],A,B](fa: F[A])(f: A => G[B])(implicit G: Applicative[G]): G[F[B]] =
     sequence(map(fa)(f))
     
-  def sequence[G[_]:Applicative,A](fga: F[G[A]]): G[F[A]] =
+  def sequence[G[_],A](fga: F[G[A]])(implicit G:Applicative[G]): G[F[A]] =
     traverse(fga)(ga => ga)
   
   type Id[A] = A
