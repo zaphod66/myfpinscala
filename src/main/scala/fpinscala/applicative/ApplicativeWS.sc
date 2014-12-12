@@ -1,39 +1,30 @@
 package fpinscala.applicative
 
 import Applicative._
+import Traverse._
 import Monad._
 
 import java.util.Date
 
 object ApplicativeWS {
   val e = eitherMonad[Int]                        //> e  : fpinscala.applicative.Monad[[x]scala.util.Either[Int,x]] = fpinscala.ap
-                                                  //| plicative.Monad$$anon$1@2da75e1b
+                                                  //| plicative.Monad$$anon$1@32cd666f
   val u1 = e.unit(1)                              //> u1  : scala.util.Either[Int,Int] = Right(1)
   val u2 = e.flatMap(u1)(i => e.unit(i + 1))      //> u2  : scala.util.Either[Int,Int] = Right(2)
- 
-  case class Form(name: String, date: Date)
-  
-  def validName(name: String): Validation[String,String] =
-    if (name != "") Success(name)
-    else Failure("<name> cannot be empty")        //> validName: (name: String)fpinscala.applicative.Validation[String,String]
+                                                  
+  val t1 = Tree('a',
+                List(Tree('b',Nil),
+                     Tree('c',
+                          List(Tree('d',Nil)))))  //> t1  : fpinscala.applicative.Tree[Char] = Tree(a,List(Tree(b,List()), Tree(c,
+                                                  //| List(Tree(d,List())))))
 
-  def validDate(date: String): Validation[String, Date] =
-    try {
-      import java.text._
-      
-      Success((new SimpleDateFormat("yyyy-MM-dd")).parse(date))
-    } catch {
-      case _ : Throwable => Failure("date must be of format yyyy-MM-dd")
-    }                                             //> validDate: (date: String)fpinscala.applicative.Validation[String,java.util.D
-                                                  //| ate]
-  def validForm(name: String, date: String) = {
-    val v = validationApplicative[String]
-    v.map2(validName(name),validDate(date))(Form(_,_))
-  }                                               //> validForm: (name: String, date: String)fpinscala.applicative.Validation[Stri
-                                                  //| ng,fpinscala.applicative.ApplicativeWS.Form]
-  validForm("Jana","1973-11-07")                  //> res0: fpinscala.applicative.Validation[String,fpinscala.applicative.Applicat
-                                                  //| iveWS.Form] = Success(Form(Jana,Wed Nov 07 00:00:00 CET 1973))
-  validForm("","--")                              //> res1: fpinscala.applicative.Validation[String,fpinscala.applicative.Applicat
-                                                  //| iveWS.Form] = Failure(<name> cannot be empty,Vector(date must be of format y
-                                                  //| yyy-MM-dd))
+  val t = treeTraverse                            //> t  : fpinscala.applicative.Traverse[fpinscala.applicative.Tree] = fpinscala.
+                                                  //| applicative.Traverse$$anon$6@292ebf3d
+  t.zipWithIndex(t1)                              //> res0: fpinscala.applicative.Tree[(Char, Int)] = Tree((a,0),List(Tree((b,1),L
+                                                  //| ist()), Tree((c,2),List(Tree((d,3),List())))))
+  t.reverse(t1)                                   //> res1: fpinscala.applicative.Tree[Char] = Tree(a,List(Tree(b,List()), Tree(c,
+                                                  //| List(Tree(d,List())))))
+  val l1 = t.toList_1(t1)                         //> l1  : List[Char] = List(a, b, c, d)
+  listTraverse.zipWithIndex(l1)                   //> res2: List[(Char, Int)] = List((a,0), (b,1), (c,2), (d,3))
+  listTraverse.reverse(l1)                        //> res3: List[Char] = List(a, b, c, d)
 }
