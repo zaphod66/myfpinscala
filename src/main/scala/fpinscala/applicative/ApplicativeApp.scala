@@ -44,7 +44,7 @@ object ApplicativeApp extends App {
     v.map3(validName(name), validDate(date), validPhone(number))(Form(_,_,_))
   }
   
-  val form1 = validForm("Jana", "1976-11-07", "0123456789")
+  val form1 = validForm("Jana", "1973-11-07", "0123456789")
   val form2 = validForm("","-11-07", "+4915140235260")
   
   println(form1)

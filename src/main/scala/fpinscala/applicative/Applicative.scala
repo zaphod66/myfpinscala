@@ -1,8 +1,11 @@
 package fpinscala.applicative
 
 import scala.language.higherKinds
+import scala.language.implicitConversions
 
 import fpinscala.monads.Functor
+import fpinscala.monoids.Monoid
+import fpinscala.monoids.Foldable
 
 trait Applicative[F[_]] extends Functor[F] {
   // primitive combinators
@@ -110,6 +113,14 @@ object Applicative {
           case (Failure(h1,t1), Failure(h2,t2)) => Failure(h1, t1 ++ Vector(h2) ++ t2)
         }
     }
+  
+  type Const[A,B] = A
+  
+  implicit def monoidApplicative[M](Q: Monoid[M]): Applicative[({ type f[x] = Const[M,x] })#f] =
+    new Applicative[({ type f[x] = Const[M,x] })#f] {
+      def unit[A](a: => A): M = Q.zero
+      override def map2[A,B,C](m1: M, m2: M)(f: (A,B) => C): M = Q.op(m1, m2)
+    }
 }
 
 // a minimal implementation of Monad must implement 'unit'
@@ -141,7 +152,7 @@ object Monad {
   }
 }
 
-trait Traverse[F[_]] {
+trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
   def traverse[G[_],A,B](fa: F[A])(f: A => G[B])(implicit G: Applicative[G]): G[F[B]] =
     sequence(map(fa)(f))
     
@@ -156,6 +167,15 @@ trait Traverse[F[_]] {
   
   def map[A,B](fa: F[A])(f: A => B): F[B] =
     traverse[Id,A,B](fa)(f)(idMonad)
+  
+  import Applicative.Const
+  import Applicative.monoidApplicative
+  
+  override def foldMap[A,M](as: F[A])(f: A => M)(mb: Monoid[M]): M =
+    traverse[({type f[x] = Const[M,x]})#f,A,Nothing](as)(f)(monoidApplicative(mb))
+    
+  override def foldLeft[A,B](as: F[A])(z: B)(f: (B,A) => B): B = ???
+  override def foldRight[A,B](as: F[A])(z: B)(f: (A,B) => B): B = ???
 }
 
 case class Tree[+A](head: A, tail: List[Tree[A]])
