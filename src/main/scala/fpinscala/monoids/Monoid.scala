@@ -230,7 +230,6 @@ object ListFoldable extends Foldable[List] {
     as.foldLeft(z)(f)
   override def foldMap[A, B](as: List[A])(f: A => B)(mb: Monoid[B]): B =
     as.foldLeft(mb.zero)((b,a) => mb.op(b, f(a)))
-    
   override def toList[A](as: List[A]) = as
 }
 

@@ -197,7 +197,7 @@ trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
       _ <- set(i + 1)
     } yield (a,i))).run(0)._1
     
-  def toList_1[A](fa: F[A]): List[A] =
+  override def toList[A](fa: F[A]): List[A] =
     traverseS(fa)((a: A) => (for {
       as <- get[List[A]]
       _  <- set(a :: as)
