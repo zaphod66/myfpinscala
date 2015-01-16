@@ -26,10 +26,10 @@ trait Applicative[F[_]] extends Functor[F] {
     apply(map(fa)(f.curried))(fb)
   
   // derived combinators
-  def map[A,B](fa: F[A])(f: A => B): F[B] =
+  def map_[A,B](fa: F[A])(f: A => B): F[B] =
     map2(fa, unit(()))((a,_) => f(a))
     
-  def map_[A,B](fa: F[A])(f: A => B): F[B] =
+  def map[A,B](fa: F[A])(f: A => B): F[B] =
     apply(unit(f))(fa)
     
   def traverse[A,B](as: List[A])(f: A => F[B]): F[List[B]] =
@@ -103,6 +103,12 @@ object Applicative {
     def unit[A](a: => A): Stream[A] = Stream.continually(a)
     override def map2[A,B,C](a: Stream[A], b: Stream[B])(f: (A,B) => C): Stream[C] =
       a zip b map f.tupled
+  }
+  
+  val listApplicative = new Applicative[List] {
+    def unit[A](a: => A): List[A] = List(a)
+    override def map2[A,B,C](as: List[A], bs: List[B])(f: (A,B) => C): List[C] =
+      as zip bs map f.tupled
   }
   
   // exercise 12.6
@@ -219,6 +225,32 @@ trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
   // exercise 12.16
   def reverse[A](fa: F[A]): F[A] =
     mapAccum(fa, toList(fa).reverse)((_,as) => (as.head,as.tail))._1
+  
+  def zip[A,B](fa: F[A], fb: F[B]): F[(A,B)] =
+    (mapAccum(fa, toList(fb)) {
+      case (a, Nil)     => sys.error("zip: Incompatible shapes")
+      case (a, b :: bs) => ((a,b), bs)
+    })._1
+
+  def zipL[A,B](fa: F[A], fb: F[B]): F[(A, Option[B])] =
+    (mapAccum(fa, toList(fb)) {
+      case (a,Nil)      => ((a, None), Nil)
+      case (a, b :: bs) => ((a, Some(b)), bs)
+    })._1
+  
+  def zipR[A,B](fa: F[A], fb: F[B]): F[(Option[A], B)] =
+    (mapAccum(fb, toList(fa)) {
+      case (b, Nil)     => ((None, b), Nil)
+      case (b, a :: as) => ((Some(a), b), as)
+    })._1
+  
+  // exercise 12.18
+  def fuse[G[_],H[_],A,B](fa: F[A])(f: A => G[B], g: A => H[B])
+                         (G: Applicative[G], H: Applicative[H]): (G[F[B]], H[F[B]]) =
+    traverse[({type p[x] = (G[x],H[x])})#p,A,B](fa)(a => (f(a), g(a)))(G product H)
+    
+  // exercise 12.19
+  def compose[G[_]](implicit G: Traverse[G]): Traverse[({type f[x] = F[G[x]]})#f] = ???
 }
 
 case class Tree[+A](head: A, tail: List[Tree[A]])

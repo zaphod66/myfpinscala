@@ -3,28 +3,36 @@ package fpinscala.applicative
 import Applicative._
 import Traverse._
 import Monad._
+import fpinscala.monoids._
 
 import java.util.Date
 
 object ApplicativeWS {
-  val e = eitherMonad[Int]                        //> e  : fpinscala.applicative.Monad[[x]scala.util.Either[Int,x]] = fpinscala.ap
-                                                  //| plicative.Monad$$anon$1@26cf2781
-  val u1 = e.unit(1)                              //> u1  : scala.util.Either[Int,Int] = Right(1)
-  val u2 = e.flatMap(u1)(i => e.unit(i + 1))      //> u2  : scala.util.Either[Int,Int] = Right(2)
+  val e = eitherMonad[Int]
+  val u1 = e.unit(1)
+  val u2 = e.flatMap(u1)(i => e.unit(i + 1))
                                                   
   val t1 = Tree('a',
                 List(Tree('b',Nil),
                      Tree('c',
-                          List(Tree('d',Nil)))))  //> t1  : fpinscala.applicative.Tree[Char] = Tree(a,List(Tree(b,List()), Tree(c,
-                                                  //| List(Tree(d,List())))))
+                          List(Tree('d',Nil)))))
 
-  val t = treeTraverse                            //> t  : fpinscala.applicative.Traverse[fpinscala.applicative.Tree] = fpinscala.
-                                                  //| applicative.Traverse$$anon$6@4c4db085
-  t.zipWithIndex(t1)                              //> res0: fpinscala.applicative.Tree[(Char, Int)] = Tree((a,0),List(Tree((b,1),L
-                                                  //| ist()), Tree((c,2),List(Tree((d,3),List())))))
-  t.reverse(t1)                                   //> res1: fpinscala.applicative.Tree[Char] = Tree(d,List(Tree(c,List()), Tree(b,
-                                                  //| List(Tree(a,List())))))
-  val l1 = t.toList(t1)                           //> l1  : List[Char] = List(a, b, c, d)
-  listTraverse.zipWithIndex(l1)                   //> res2: List[(Char, Int)] = List((a,0), (b,1), (c,2), (d,3))
-  listTraverse.reverse(l1)                        //> res3: List[Char] = List(d, c, b, a)
+  val lf = ListFoldable
+  val t = treeTraverse
+  treeTraverse.zipWithIndex(t1)
+  treeTraverse.reverse(t1)
+  val l1 = treeTraverse.toList(t1)
+  listTraverse.zipWithIndex(l1)
+  listTraverse.reverse(l1)
+  
+  def c2i(c: Char): Int = c.toInt
+  def c2l0(c: Char): List[Int] = List(c2i(c))
+  def c2l1(c: Char): List[Int] = List(c2i(c) + 1)
+    
+  treeTraverse.traverse(t1)(c2l0)(optionApplicative).head
+  
+  val t2 = treeTraverse.fuse(t1)(c2l0,c2l1)(
+             listApplicative,listApplicative)
+  t2._1.head
+  t2._2.head
 }
