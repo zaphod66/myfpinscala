@@ -105,6 +105,18 @@ object Applicative {
       a zip b map f.tupled
   }
   
+  val optionApplicative = new Applicative[Option] {
+    def unit[A](a: => A): Option[A] = Option(a)
+    override def map2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] = {
+      def zip[A,B](a: Option[A], b: Option[B]): Option[(A,B)] = (a,b) match {
+        case (Some(a),Some(b)) => Some((a,b))
+        case _                 => None
+      }
+      
+      zip(a,b) map f.tupled
+    }
+  }
+  
   val listApplicative = new Applicative[List] {
     def unit[A](a: => A): List[A] = List(a)
     override def map2[A,B,C](as: List[A], bs: List[B])(f: (A,B) => C): List[C] =
